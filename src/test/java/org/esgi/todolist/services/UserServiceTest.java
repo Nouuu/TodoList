@@ -20,19 +20,19 @@ public class UserServiceTest {
 
   @Test
   public void testIfUserWithoutFirstNameIsValid() {
-    final User user = new User("", "lastname", "email@email.fr", "123145f");
+    final User user = new User("", "lastname", "email@email.fr", "123145dvdvezf");
     assertFalse(userService.isValid(user));
   }
 
   @Test
   public void testIfUserWithoutLastNameIsValid() {
-    final User user = new User("firstName", "", "email@email.fr", "123145f");
+    final User user = new User("firstName", "", "email@email.fr", "12314qfqdsf5f");
     assertFalse(userService.isValid(user));
   }
 
   @Test
   public void testIfUserWithoutEmailIsValid() {
-    final User user = new User("firstName", "lastname", "", "123145f");
+    final User user = new User("firstName", "lastname", "", "qsfqfdqferg'24");
     assertFalse(userService.isValid(user));
   }
 
@@ -42,11 +42,16 @@ public class UserServiceTest {
     assertFalse(userService.isValid(user));
   }
 
+  public void testUserWithShortPasswordIsValid() {
+    final User user = new User("firstName", "lastname", "email@email.fr", "123azer");
+    assertFalse(userService.isValid(user));
+  }
+
   @Test
   public void testIfUserWithWrongEmailIsValid() {
     final User user1 = new User("firstName", "lastname", "emailemail.fr", "asd154684f5dv2c");
     final User user2 = new User("firstName", "lastname", "emailemailfr", "asd154684f5dv2c");
-    final User user3 = new User("firstName", "lastname", "###²@email.fv", "asd154684f5dv2c");
+    final User user3 = new User("firstName", "lastname", "email@", "asd154684f5dv2c");
     assertFalse(userService.isValid(user1));
     assertFalse(userService.isValid(user2));
     assertFalse(userService.isValid(user3));
@@ -54,7 +59,7 @@ public class UserServiceTest {
 
   @Test
   public void testGoodUserIsValid() {
-    final User user = new User("firstName", "lastName", "email@email.fr", "123145f");
+    final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
     assertTrue(userService.isValid(user));
   }
 }
