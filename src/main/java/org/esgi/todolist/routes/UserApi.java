@@ -18,13 +18,13 @@ public class UserApi {
     @PostMapping("/ToDoList")
     public ResponseEntity<User> CreateToDoList(@RequestBody User user) {
         User responseUser = this.userService.createTodolist(user);
-        return new ResponseEntity<>(responseUser, HttpStatus.OK);
+        return new ResponseEntity<>(responseUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/items")
     public ResponseEntity<User> AddItem(@RequestBody User user, @RequestBody Item item) {
         User responseUser = this.userService.addItem(user, item);
-        return new ResponseEntity<>(responseUser, HttpStatus.OK);
+        return new ResponseEntity<>(responseUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/items/{id}")
@@ -36,6 +36,6 @@ public class UserApi {
     @DeleteMapping("/items/{id}")
     public ResponseEntity<User> DeleteItem(@RequestBody User user, @PathVariable int id) {
         User responseUser = this.userService.removeItem(user, id);
-        return new ResponseEntity<>(responseUser, HttpStatus.OK);
+        return new ResponseEntity<>(responseUser, HttpStatus.NO_CONTENT);
     }
 }
