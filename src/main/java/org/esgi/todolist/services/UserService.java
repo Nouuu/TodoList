@@ -11,14 +11,17 @@ import org.springframework.util.StringUtils;
 public class UserService {
 
     private final TodoListService todoListService;
+    private final EmailSenderService emailSenderService;
 
     @Autowired
-    public UserService(TodoListService todoListService) {
+    public UserService(TodoListService todoListService, EmailSenderService emailSenderService) {
         this.todoListService = todoListService;
+        this.emailSenderService = emailSenderService;
     }
 
     public boolean isValid(User user) {
-        return isValidEmail(user.getEmail())
+        return user != null
+                && isValidEmail(user.getEmail())
                 && StringUtils.hasText(user.getFirstname())
                 && StringUtils.hasText(user.getLastname())
                 && StringUtils.hasLength(user.getPassword())
@@ -34,20 +37,44 @@ public class UserService {
         if (!this.isValid(user)) {
             throw new UserException("User is not valid");
         }
-        user.createTodolist();
+        if (user.getToDoList() != null) {
+            user.createTodolist();
+        }
         return user;
     }
 
     public User addItem(User user, Item item) {
-        return null;
+        if (!isValid(user) || user.getToDoList() == null) {
+            throw new UserException("User invalid or don't have list");
+        }
+
+        this.todoListService.addItem(user.getToDoList(), item);
+
+        if (user.getToDoList().getItems().size() == 8) {
+            emailSenderService.sendWarningEmailListSize(user.getEmail());
+        }
+
+        return user;
     }
 
     public User removeItem(User user, int itemIndex) {
-        return null;
+        if (!isValid(user) || user.getToDoList() == null) {
+            throw new UserException("User invalid or don't have list");
+        }
+
+//        this.todoListService.removeItem(user.getToDoList(),itemIndex);
+
+        return user;
     }
 
     public User updateItem(User user, Item item, int itemIndex) {
-        return null;
+        if (!isValid(user) || user.getToDoList() == null) {
+            throw new UserException("User invalid or don't have list");
+        }
+
+//        this.todoListService.updateItem(user.getToDoList(),itemIndex,item);
+
+        return user;
     }
 
 
