@@ -2,12 +2,19 @@ package org.esgi.todolist.services;
 
 import org.esgi.todolist.models.Item;
 import org.esgi.todolist.models.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 @Service
 public class UserService {
 
+    private final TodoListService todoListService;
+
+    @Autowired
+    public UserService(TodoListService todoListService) {
+        this.todoListService = todoListService;
+    }
 
     public boolean isValid(User user) {
         return isValidEmail(user.getEmail())
