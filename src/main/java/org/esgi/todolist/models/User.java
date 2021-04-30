@@ -15,9 +15,7 @@ public class User {
     }
 
     public static boolean isValidEmail(String email) {
-        EmailValidator validator = EmailValidator.getInstance();
-        return validator.isValid(email);
-
+        return email.matches("^(.+)@(.+)$");
     }
 
 }
