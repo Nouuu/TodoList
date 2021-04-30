@@ -13,6 +13,10 @@ public class User {
         this.lastname = lastname;
         this.email = email;
         this.password = password;
+        this.toDoList = null;
+    }
+
+    public void createTodolist() {
         this.toDoList = new ToDoList();
     }
 
