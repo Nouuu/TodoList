@@ -1,7 +1,10 @@
 package org.esgi.todolist.services;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.esgi.todolist.commons.exceptions.UserException;
 
 import org.esgi.todolist.models.User;
 import org.junit.jupiter.api.Test;
@@ -61,5 +64,21 @@ public class UserServiceTest {
   public void testGoodUserIsValid() {
     final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
     assertTrue(userService.isValid(user));
+  }
+
+  @Test
+  public void createTodoListWithBadUser() {
+    User user = new User("", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+    assertThrows(UserException.class, () -> {
+      userService.createTodolist(user);
+    });
+  }
+
+  @Test
+  public void createTodoListWithGoodUser() {
+    final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+    assertDoesNotThrow(() -> {
+      userService.createTodolist(user);
+    });
   }
 }
