@@ -1,7 +1,6 @@
 package org.esgi.todolist.services;
 
 import org.esgi.todolist.models.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -12,7 +11,7 @@ public class UserService {
     public boolean isValid(User user) {
         return isValidEmail(user.getEmail())
                 && StringUtils.hasText(user.getFirstname())
-                && StringUtils.hasText(user.getLastname())
+                && StringUtils.hasText(user.getLastname());
     }
 
     private boolean isValidEmail(String email) {
@@ -23,6 +22,8 @@ public class UserService {
         return null;
     }
 
-    private User 
+    private User addItem(User user) {
+        return null;
+    }
 
 }
