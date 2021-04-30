@@ -14,8 +14,29 @@ public class User {
         this.password = password;
     }
 
-    public static boolean isValidEmail(String email) {
-        return email.matches("^(.+)@(.+)$");
+    public String getFirstname() {
+        return firstname;
     }
 
+    public String getLastname() {
+        return lastname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }
