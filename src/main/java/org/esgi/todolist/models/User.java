@@ -6,12 +6,18 @@ public class User {
     private final String lastname;
     private final String email;
     private final String password;
+    private ToDoList toDoList;
 
     public User(String firstname, String lastname, String email, String password) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
+        this.toDoList = new ToDoList();
+    }
+
+    public ToDoList getToDoList() {
+        return toDoList;
     }
 
     public String getFirstname() {
