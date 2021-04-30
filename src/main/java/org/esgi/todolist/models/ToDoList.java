@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class ToDoList {
   private ArrayList<Item> items;
 
-  public ToDoList(ArrayList<Item> items) {
-    this.items = items;
+  public ToDoList() {
+    this.items = new ArrayList<Item>();
   }
 
   public void add(Item item) {
