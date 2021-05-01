@@ -62,7 +62,7 @@ public class UserService {
             throw new UserException("User invalid or don't have list");
         }
 
-//        this.todoListService.removeItem(user.getToDoList(),itemIndex);
+        this.todoListService.removeItem(user.getToDoList(), itemIndex);
 
         return user;
     }
@@ -72,7 +72,7 @@ public class UserService {
             throw new UserException("User invalid or don't have list");
         }
 
-//        this.todoListService.updateItem(user.getToDoList(),itemIndex,item);
+        this.todoListService.updateItem(user.getToDoList(), itemIndex, item);
 
         return user;
     }
