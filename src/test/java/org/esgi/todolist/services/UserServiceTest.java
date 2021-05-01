@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.esgi.todolist.commons.exceptions.UserException;
 
+import java.time.LocalDateTime;
+
+import org.esgi.todolist.commons.exceptions.UserException;
+import org.esgi.todolist.models.Item;
 import org.esgi.todolist.models.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +70,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createTodoListWithBadUser() {
+  public void createToDoListWithBadUser() {
     User user = new User("", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
     assertThrows(UserException.class, () -> {
       userService.createTodolist(user);
@@ -75,10 +78,38 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createTodoListWithGoodUser() {
+  public void createToDoListWithGoodUser() {
     final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
     assertDoesNotThrow(() -> {
       userService.createTodolist(user);
+    });
+  }
+
+  @Test
+  public void getToDoListWhenUserAlreadyHasOne() {
+    final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+    assertDoesNotThrow(() -> {
+      userService.createTodolist(user);
+      userService.createTodolist(user);
+    });
+  }
+
+  @Test
+  public void addItemWhenIsNotValid() {
+    final User user = new User("", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+    final Item item = new Item("test", "content de test", LocalDateTime.now());
+    assertThrows(UserException.class, () -> {
+      userService.createTodolist(user);
+      userService.addItem(user, item);
+    });
+  }
+
+  @Test
+  public void addItemWhenToDoListIsNotCreate() {
+    final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+    final Item item = new Item("test", "content de test", LocalDateTime.now());
+    assertThrows(UserException.class, () -> {
+      userService.addItem(user, item);
     });
   }
 }
