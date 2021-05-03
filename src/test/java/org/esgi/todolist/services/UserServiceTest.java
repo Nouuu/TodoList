@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import org.esgi.todolist.commons.exceptions.TodoListException;
 import org.esgi.todolist.commons.exceptions.UserException;
 import org.esgi.todolist.models.Item;
+import org.esgi.todolist.models.ToDoList;
 import org.esgi.todolist.models.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ public class UserServiceTest {
     private TodoListService todoListServiceMock;
 
     @MockBean
-    private MessageSenderService emailSenderServiceMock;
+    private EmailSenderService emailSenderServiceMock;
 
     @Autowired
     public UserServiceTest(UserService userService) {
@@ -160,7 +161,7 @@ public class UserServiceTest {
         final Item item = new Item("test", "content de test", LocalDateTime.now());
         user.createTodolist();
 
-        Mockito.doReturn(true).when(todoListServiceMock).isItemValid(Mockito.any(Item.class));
+        Mockito.doReturn(true).when(todoListServiceMock).isItemValid(Mockito.any(Item.class), Mockito.any(ToDoList.class),Mockito.any());
 
         assertThrows(TodoListException.class, () -> {
             userService.addItem(user, item);

@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 public class UserService {
 
     private final TodoListService todoListService;
-    private final MessageSenderService emailSenderService;
+    private final EmailSenderService emailSenderService;
 
     @Autowired
     public UserService(TodoListService todoListService, EmailSenderService emailSenderService) {
@@ -76,6 +76,4 @@ public class UserService {
 
         return user;
     }
-
-
 }
