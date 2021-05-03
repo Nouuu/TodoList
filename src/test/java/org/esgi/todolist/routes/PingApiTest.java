@@ -1,5 +1,7 @@
 package org.esgi.todolist.routes;
 
+import org.esgi.todolist.MvcHelper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,17 +18,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class PingApiTest {
 
-    private MockMvc mvc;
-
     @Autowired
-    public PingApiTest(MockMvc mvc) {
-        this.mvc = mvc;
+    private PingApi pingApi;
+
+    private MvcHelper mvcHelper;
+
+    @BeforeEach
+    void setUp() {
+        mvcHelper = new MvcHelper(pingApi, "");
     }
 
     @Test
     void ping() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/ping/")
-                .accept(MediaType.TEXT_PLAIN))
+        mvcHelper.invokeGetMethod("/ping/")
                 .andExpect(status().isOk())
                 .andExpect(content().string(equalTo("Pong")));
     }

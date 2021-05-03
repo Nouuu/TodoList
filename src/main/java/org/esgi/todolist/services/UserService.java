@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 public class UserService {
 
     private final TodoListService todoListService;
-    private final EmailSenderService emailSenderService;
+    private final MessageSenderService emailSenderService;
 
     @Autowired
     public UserService(TodoListService todoListService, EmailSenderService emailSenderService) {
@@ -51,7 +51,7 @@ public class UserService {
         this.todoListService.addItem(user.getToDoList(), item);
 
         if (user.getToDoList().getItems().size() == 8) {
-            emailSenderService.sendWarningEmailListSize(user.getEmail());
+            emailSenderService.sendWarningMessage(user.getEmail());
         }
 
         return user;
