@@ -65,7 +65,67 @@ class TodoListServiceTest {
     }
 
     @Test
+    @DisplayName("Add item in todolist where already 10 items")
+    void addItemAlreadyTenItems() {
+        todolist.add(item1).add(item2).add(item3).add(item4).add(item5);
+
+        Item newItem = new Item("new Item", "new item content");
+
+        Assertions.assertThatThrownBy(() -> todoListService.addItem(todolist, newItem))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Can't add more than 10 items in todo list");
+    }
+
+    @Test
+    @DisplayName("Add invalid item in todolist")
+    void addInvalidItem() {
+        Item newItem = new Item("", "new item content");
+
+        Assertions.assertThatThrownBy(() -> todoListService.addItem(todolist, newItem))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Item not valid");
+    }
+
+    @Test
+    @DisplayName("Add item in null todolist")
+    void addItemNullList() {
+        todolist = null;
+        Item newItem = new Item("new Item", "new item content");
+
+        Assertions.assertThatThrownBy(() -> todoListService.addItem(todolist, newItem))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Todo List is null");
+    }
+
+    @Test
+    @DisplayName("Remove item in null todolist")
+    void removeItemNullList() {
+        todolist = null;
+
+        Assertions.assertThatThrownBy(() -> todoListService.removeItem(todolist, 0))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Todo List is null");
+    }
+
+    @Test
+    @DisplayName("Remove item out of range in todolist")
+    void removeItemOutOfRange() {
+        Assertions.assertThatThrownBy(() -> todoListService.removeItem(todolist, -1))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Index out of range");
+        Assertions.assertThatThrownBy(() -> todoListService.removeItem(todolist, 5))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Index out of range");
+    }
+
+    @Test
+    @DisplayName("Remove item in todolist")
     void removeItem() {
+        todoListService.removeItem(todolist, 0);
+
+        Assertions.assertThat(
+                todolist.getItems().stream().anyMatch(i -> i.getName().equals(item1.getName())))
+                .isFalse();
     }
 
     @Test

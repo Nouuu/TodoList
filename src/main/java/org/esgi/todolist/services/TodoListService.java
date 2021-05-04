@@ -14,6 +14,10 @@ public class TodoListService {
     private final int contentMaxLength = 1000;
 
     public void addItem(ToDoList todolist, Item item) {
+        if (todolist == null) {
+            throw new TodoListException("Todo List is null");
+        }
+
         if (todolist.getItems().size() >= 10) {
             throw new TodoListException("Can't add more than 10 items in todo list");
         }
@@ -56,6 +60,9 @@ public class TodoListService {
     }
 
     public boolean isItemValid(Item item, ToDoList toDoList, int ignoreIndex) {
+        if (item == null) {
+            return false;
+        }
         if (!StringUtils.hasText(item.getName())) {
             return false;
         }
