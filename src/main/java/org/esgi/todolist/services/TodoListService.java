@@ -54,8 +54,9 @@ public class TodoListService {
             throw new TodoListException("Index out of range");
         }
         if (!isItemValid(item, todolist, itemIndex)) {
-            throw new TodoListException("Invalid item");
+            throw new TodoListException("Item not valid");
         }
+        item.setCreatedAt(LocalDateTime.now());
         todolist.getItems().set(itemIndex, item);
     }
 

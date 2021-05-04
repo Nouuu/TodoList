@@ -128,11 +128,97 @@ class TodoListServiceTest {
                 .isFalse();
     }
 
+    ////
+
     @Test
-    void updateItem() {
+    @DisplayName("Update with invalid item todolist")
+    void updateInvalidItem() {
+        Item newItem = new Item("", "new item content");
+
+        Assertions.assertThatThrownBy(() -> todoListService.updateItem(todolist, 2, newItem))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Item not valid");
     }
 
     @Test
-    void isItemValid() {
+    @DisplayName("Update item in null todolist")
+    void updateItemNullList() {
+        todolist = null;
+        Item newItem = new Item("new Item", "new item content");
+
+        Assertions.assertThatThrownBy(() -> todoListService.updateItem(todolist, 0, newItem))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Todo List is null");
     }
+
+    @Test
+    @DisplayName("Update item out of range in todolist")
+    void updateItemOutOfRange() {
+        Item newItem = new Item("new Item", "new item content");
+
+        Assertions.assertThatThrownBy(() -> todoListService.updateItem(todolist, -1, newItem))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Index out of range");
+        Assertions.assertThatThrownBy(() -> todoListService.updateItem(todolist, 5, newItem))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Index out of range");
+    }
+
+    @Test
+    @DisplayName("Update item in todolist")
+    void updateItem() {
+        Item newItem = new Item("new Item", "new item content");
+        todoListService.updateItem(todolist, 1, newItem);
+
+        Assertions.assertThat(todolist.getItems().get(1)).isEqualTo(newItem);
+    }
+
+    @Test
+    @DisplayName("Is item valid with valid item")
+    void isItemValid() {
+        Item newItem = new Item("new Item", "new item content");
+
+        Assertions.assertThat(todoListService.isItemValid(newItem, todolist, -1)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Is item valid with valid item but doublon")
+    void isItemValidDoublon() {
+        Item newItem = new Item("Item 5", "new item content");
+
+        Assertions.assertThat(todoListService.isItemValid(newItem, todolist, -1)).isFalse();
+    }
+
+    @Test
+    @DisplayName("Is item valid with valid item but doublon on ignored index")
+    void isItemValidDoublonIgnoredIndex() {
+        Item newItem = new Item("Item 5", "new item content");
+
+        Assertions.assertThat(todoListService.isItemValid(newItem, todolist, 4)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Is item valid with null item")
+    void isItemValidNull() {
+        Assertions.assertThat(todoListService.isItemValid(null, todolist, -1)).isFalse();
+    }
+
+    @Test
+    @DisplayName("Is item valid with empty item name")
+    void isItemValidEmptyName() {
+        Item newItem = new Item(null, "new item content");
+        Assertions.assertThat(todoListService.isItemValid(newItem, todolist, -1)).isFalse();
+        newItem.setName("");
+        Assertions.assertThat(todoListService.isItemValid(newItem, todolist, -1)).isFalse();
+        newItem.setName("            ");
+        Assertions.assertThat(todoListService.isItemValid(newItem, todolist, -1)).isFalse();
+    }
+
+    @Test
+    @DisplayName("Is item valid with content over 1000 characters")
+    void isItemValidLongContent() {
+        Item newItem = new Item("new Item", "n".repeat(1001));
+        Assertions.assertThat(todoListService.isItemValid(newItem, todolist, -1)).isFalse();
+    }
+
 }

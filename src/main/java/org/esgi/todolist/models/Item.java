@@ -34,4 +34,8 @@ public class Item {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
