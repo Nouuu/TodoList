@@ -24,7 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 public class UserServiceTest {
 
     @InjectMocks
-    private UserService userService;
+    private final UserService userService;
 
     @MockBean
     private TodoListService todoListServiceMock;
@@ -61,6 +61,7 @@ public class UserServiceTest {
         assertFalse(userService.isValid(user));
     }
 
+    @Test
     public void testUserWithShortPasswordIsValid() {
         final User user = new User("firstName", "lastname", "email@email.fr", "123azer");
         assertFalse(userService.isValid(user));

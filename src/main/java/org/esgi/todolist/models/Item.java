@@ -13,6 +13,12 @@ public class Item {
         this.createdAt = createdAt;
     }
 
+    public Item(String name, String content) {
+        this.name = name;
+        this.content = content;
+        this.createdAt = LocalDateTime.now();
+    }
+
     public String getName() {
         return name;
     }
@@ -27,5 +33,9 @@ public class Item {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
