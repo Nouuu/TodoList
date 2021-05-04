@@ -9,16 +9,13 @@ public class ToDoList {
         this.items = new ArrayList<Item>();
     }
 
-    public void add(Item item) {
+    public ToDoList add(Item item) {
         items.add(item);
+        return this;
     }
 
     public void remove(int index) {
         items.remove(index);
-    }
-
-    public boolean contains(Item item) {
-        return items.contains(item);
     }
 
     public ArrayList<Item> getItems() {
