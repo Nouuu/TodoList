@@ -37,8 +37,10 @@ public class UserService {
         if (!this.isValid(user)) {
             throw new UserException("User is not valid");
         }
-        if (user.getToDoList() != null) {
+        if (user.getToDoList() == null) {
             user.createTodolist();
+        } else {
+            throw new UserException("User have already a todolist");
         }
         return user;
     }

@@ -1,12 +1,8 @@
 package org.esgi.todolist.services;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.LocalDateTime;
 
+import org.assertj.core.api.Assertions;
 import org.esgi.todolist.commons.exceptions.TodoListException;
 import org.esgi.todolist.commons.exceptions.UserException;
 import org.esgi.todolist.models.Item;
@@ -19,6 +15,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class UserServiceTest {
@@ -35,6 +36,11 @@ public class UserServiceTest {
     @Autowired
     public UserServiceTest(UserService userService) {
         this.userService = userService;
+    }
+
+    @Test
+    public void testIfNullUserIsValid() {
+        assertFalse(userService.isValid(null));
     }
 
     @Test
@@ -58,6 +64,12 @@ public class UserServiceTest {
     @Test
     public void testIfUserWithoutPasswordIsValid() {
         final User user = new User("firstName", "lastname", "email@email.fr", "");
+        assertFalse(userService.isValid(user));
+    }
+
+    @Test
+    public void testIfUserWithTooLongPasswordIsValid() {
+        final User user = new User("firstName", "lastname", "email@email.fr", "0123456789012345678901234567890123456789");
         assertFalse(userService.isValid(user));
     }
 
@@ -94,37 +106,54 @@ public class UserServiceTest {
     @Test
     public void createToDoListWithGoodUser() {
         final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        assertDoesNotThrow(() -> {
-            userService.createTodolist(user);
-        });
+        userService.createTodolist(user);
+        assertNotNull(user.getToDoList());
     }
 
     @Test
     public void getToDoListWhenUserAlreadyHasOne() {
         final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        assertDoesNotThrow(() -> {
-            userService.createTodolist(user);
-            userService.createTodolist(user);
-        });
+        userService.createTodolist(user);
+        Assertions.assertThatThrownBy(() -> userService.createTodolist(user))
+                .isInstanceOf(UserException.class)
+                .hasMessage("User have already a todolist");
     }
 
-    @Test
-    public void addItemWhenIsNotValid() {
-        final User user = new User("", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        final Item item = new Item("test", "content de test", LocalDateTime.now());
-        assertThrows(UserException.class, () -> {
-            userService.createTodolist(user);
-            userService.addItem(user, item);
-        });
-    }
 
     @Test
     public void addItemWhenToDoListIsNotCreate() {
         final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
         final Item item = new Item("test", "content de test", LocalDateTime.now());
-        assertThrows(UserException.class, () -> {
-            userService.addItem(user, item);
-        });
+
+        Assertions.assertThatThrownBy(() -> userService.addItem(user, item))
+                .isInstanceOf(UserException.class)
+                .hasMessage("User invalid or don't have list");
+    }
+
+    @Test
+    public void addItemWhenNoUser() {
+        Assertions.assertThatThrownBy(() -> userService.addItem(null, null))
+                .isInstanceOf(UserException.class).hasMessage("User invalid or don't have list");
+    }
+
+    @Test
+    public void addItemToSendMail() {
+        final User user = new User("firstname", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+        final Item item0 = new Item("test0", "content de test", LocalDateTime.now().minusMinutes(280));
+        final Item item1 = new Item("test1", "content de test", LocalDateTime.now().minusMinutes(240));
+        final Item item2 = new Item("test2", "content de test", LocalDateTime.now().minusMinutes(200));
+        final Item item3 = new Item("test3", "content de test", LocalDateTime.now().minusMinutes(1600));
+        final Item item4 = new Item("test4", "content de test", LocalDateTime.now().minusMinutes(120));
+        final Item item5 = new Item("test5", "content de test", LocalDateTime.now().minusMinutes(80));
+        final Item item6 = new Item("test6", "content de test", LocalDateTime.now().minusMinutes(40));
+        final Item item7 = new Item("test7", "content de test", LocalDateTime.now());
+
+        userService.createTodolist(user);
+        user.getToDoList().add(item0).add(item1).add(item2).add(item3).add(item4).add(item5).add(item6);
+        doCallRealMethod().when(todoListServiceMock).addItem(Mockito.any(ToDoList.class), Mockito.any(Item.class));
+        doCallRealMethod().when(todoListServiceMock).isItemValid(Mockito.any(Item.class), Mockito.any(ToDoList.class), Mockito.anyInt());
+
+        assertDoesNotThrow(()-> userService.addItem(user, item7));
     }
 
     @Test
@@ -134,7 +163,7 @@ public class UserServiceTest {
         final Item item = new Item("test", "content de test", LocalDateTime.now());
         user.createTodolist();
         Mockito.doThrow(new TodoListException("You need to wait 30 minutes between to tasks"))
-                .when(todoListServiceMock).addItem(Mockito.any(), Mockito.any());
+                .when(todoListServiceMock).addItem(any(), any());
 
         assertThrows(TodoListException.class, () -> {
             userService.addItem(user, item);
@@ -142,30 +171,70 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Test add item do nothing don't send email")
-    public void testUserAddItemMock() {
+    public void addItemWhenEverythingIsOK() {
         final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
         final Item item = new Item("test", "content de test", LocalDateTime.now());
-        user.createTodolist();
-
-        Mockito.doNothing().when(emailSenderServiceMock).sendWarningMessage(Mockito.any());
-
-        assertThrows(TodoListException.class, () -> {
+        userService.createTodolist(user);
+        assertDoesNotThrow(() -> {
             userService.addItem(user, item);
         });
     }
 
     @Test
-    @DisplayName("Test item valid")
-    public void testUserIsValidItemMock() {
+    public void removeItemWithoutTodolist() {
+        final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+
+        Assertions.assertThatThrownBy(() -> userService.removeItem(user, 0))
+                .isInstanceOf(UserException.class)
+                .hasMessage("User invalid or don't have list");
+    }
+
+    @Test
+    public void removeItemWhenNoUser() {
+        Assertions.assertThatThrownBy(() -> userService.removeItem(null, 0))
+                .isInstanceOf(UserException.class).hasMessage("User invalid or don't have list");
+    }
+
+    @Test
+    public void removeItemWhenEverythingIsOK() {
         final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
         final Item item = new Item("test", "content de test", LocalDateTime.now());
-        user.createTodolist();
-
-        Mockito.doReturn(true).when(todoListServiceMock).isItemValid(Mockito.any(Item.class), Mockito.any(ToDoList.class),Mockito.any());
-
-        assertThrows(TodoListException.class, () -> {
+        userService.createTodolist(user);
+        assertDoesNotThrow(() -> {
             userService.addItem(user, item);
+            userService.removeItem(user, 0);
+        });
+    }
+
+    @Test
+    public void updateItemWithNoTodolist() {
+        final User user = new User("firstname", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+        final Item item = new Item("test", "content de test", LocalDateTime.now());
+
+        Assertions.assertThatThrownBy(() -> {
+           userService.updateItem(user, item, 0);
+        }).isInstanceOf(UserException.class).hasMessage("User invalid or don't have list");
+    }
+
+    @Test
+    public void updateItemWithNoUser() {
+        Assertions.assertThatThrownBy(() -> userService.updateItem(null, null, 0))
+                .isInstanceOf(UserException.class).hasMessage("User invalid or don't have list");
+    }
+
+    @Test
+    public void updateItemWhenEverythingIsOK() {
+        final User user = new User("firstname", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
+        final Item item = new Item("test", "content de test", LocalDateTime.now().minusMinutes(40));
+        final Item itemUpdate = new Item("testUpdate", "content update", LocalDateTime.now());
+
+        doCallRealMethod().when(todoListServiceMock).addItem(Mockito.any(ToDoList.class), Mockito.any(Item.class));
+        doCallRealMethod().when(todoListServiceMock).isItemValid(Mockito.any(Item.class), Mockito.any(ToDoList.class), Mockito.anyInt());
+
+        assertDoesNotThrow(() -> {
+            userService.createTodolist(user);
+            userService.addItem(user, item);
+            userService.updateItem(user, itemUpdate, 0);
         });
     }
 }

@@ -26,10 +26,12 @@ public class TodoListService {
             throw new TodoListException("Item not valid");
         }
 
-        Item lastItem = todolist.getItems().get(todolist.getItems().size() - 1);
         LocalDateTime now = LocalDateTime.now();
-        if (now.minusMinutes(30).isBefore(lastItem.getCreatedAt())) {
-            throw new TodoListException("You need to wait 30 minutes between to tasks");
+        if (todolist.getItems().size() > 0) {
+            Item lastItem = todolist.getItems().get(todolist.getItems().size() - 1);
+            if (now.minusMinutes(30).isBefore(lastItem.getCreatedAt())) {
+                throw new TodoListException("You need to wait 30 minutes between to tasks");
+            }
         }
         item.setCreatedAt(now);
         todolist.add(item);
@@ -74,7 +76,7 @@ public class TodoListService {
         if (isDoublon) {
             return false;
         }
-        if (StringUtils.hasText(item.getContent()) && item.getContent().length() > contentMaxLength) {
+        if (!StringUtils.hasText(item.getContent()) || item.getContent().length() > contentMaxLength) {
             return false;
         }
         return true;

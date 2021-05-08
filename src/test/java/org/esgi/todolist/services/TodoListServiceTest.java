@@ -215,6 +215,13 @@ class TodoListServiceTest {
     }
 
     @Test
+    @DisplayName("Is item valid with no content")
+    void isItemValidWithNoContent() {
+        final Item item = new Item("test no content", "", LocalDateTime.now());
+        Assertions.assertThat(todoListService.isItemValid(item, todolist, -1)).isFalse();
+    }
+
+    @Test
     @DisplayName("Is item valid with content over 1000 characters")
     void isItemValidLongContent() {
         Item newItem = new Item("new Item", "n".repeat(1001));
