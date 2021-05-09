@@ -2,6 +2,7 @@ package org.esgi.todolist.routes;
 
 import org.esgi.todolist.models.Item;
 import org.esgi.todolist.models.User;
+import org.esgi.todolist.models.UserWithItem;
 import org.esgi.todolist.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,14 +23,14 @@ public class UserApi {
     }
 
     @PostMapping("/items")
-    public ResponseEntity<User> AddItem(@RequestBody User user, @RequestBody Item item) {
-        User responseUser = this.userService.addItem(user, item);
+    public ResponseEntity<User> AddItem(@RequestBody UserWithItem userWithItem) {
+        User responseUser = this.userService.addItem(userWithItem.user, userWithItem.item);
         return new ResponseEntity<>(responseUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/items/{id}")
-    public ResponseEntity<User> UpdateItem(@RequestBody User user, @RequestBody Item item, @PathVariable int id) {
-        User responseUser = this.userService.updateItem(user, item, id);
+    public ResponseEntity<User> UpdateItem(@RequestBody UserWithItem userWithItem, @PathVariable int id) {
+        User responseUser = this.userService.updateItem(userWithItem.user, userWithItem.item, id);
         return new ResponseEntity<>(responseUser, HttpStatus.OK);
     }
 

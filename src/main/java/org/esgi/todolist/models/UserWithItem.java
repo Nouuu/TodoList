@@ -10,16 +10,8 @@ public class UserWithItem {
   public Item item;
 
   @JsonCreator
-  public UserWithItem(
-    @JsonProperty("firstname") String firstname,
-    @JsonProperty("lastname") String lastname,
-    @JsonProperty("email") String email,
-    @JsonProperty("password") String password,
-    @JsonProperty("toDoList") ToDoList toDoList,
-    @JsonProperty("name") String name,
-    @JsonProperty("content") String content,
-    @JsonProperty("createdAt") LocalDateTime createdAt) {
-    this.user = new User(firstname, lastname, email, password, toDoList);
-    this.item = new Item(name, content, createdAt);
+  public UserWithItem(@JsonProperty("user") User user, @JsonProperty("item") Item item) {
+    this.user = user;
+    this.item = item;
   }
 }

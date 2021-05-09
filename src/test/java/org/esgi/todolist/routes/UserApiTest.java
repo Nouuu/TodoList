@@ -66,7 +66,22 @@ public class UserApiTest {
 
     @Test
     void testAddItemWhenEverythingIsOk() throws Exception {
-        String data = "{\"firstname\": \"firstname\",\"lastname\": \"lastname\",\"email\": \"email@email.email\",\"password\": \"wrhvfewfvweb\",\"ToDoList\": {\"items\": []},{\"name\": \"name\",\"content\": \"name's content\",\"createdAt\": \"2021-05-09T11:02:15.202Z\"}";
+        String data = "{\n" +
+                "    \"user\": {\n" +
+                "        \"firstname\": \"firstname\",\n" +
+                "        \"lastname\": \"lastname\",\n" +
+                "        \"email\": \"email@email.email\",\n" +
+                "        \"password\": \"wrhvfewfvweb\",\n" +
+                "        \"ToDoList\": {\n" +
+                "            \"items\": []\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"item\": {\n" +
+                "        \"name\": \"name\",\n" +
+                "        \"content\": \"name's content\",\n" +
+                "        \"createdAt\": \"2021-05-09T11:02:15.202Z\"\n" +
+                "    }\n" +
+                "}";
         String returnData = "";
         mvcHelper.invokePostMethod("items", data)
                 .andExpect(status().isCreated())
@@ -74,7 +89,53 @@ public class UserApiTest {
     }
 
     @Test
-    void testUpdateItem() {
+    void testUpdateItemWhenEverythingIsOk() throws Exception {
+        String data = "{\n" +
+                "    \"user\": {\n" +
+                "        \"firstname\": \"firstname\",\n" +
+                "        \"lastname\": \"lastname\",\n" +
+                "        \"email\": \"email@email.email\",\n" +
+                "        \"password\": \"wrhvfewfvweb\",\n" +
+                "        \"ToDoList\": {\n" +
+                "            \"items\": [\n" +
+                "                \"name\": \"name\",\n" +
+                "                \"content\": \"name's content update\",\n" +
+                "                \"createdAt\": \"2021-05-09T11:02:15.202Z\"  \n" +
+                "            ]\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"item\": {\n" +
+                "        \"name\": \"name\",\n" +
+                "        \"content\": \"name's content\",\n" +
+                "        \"createdAt\": \"2021-05-09T11:02:15.202Z\"\n" +
+                "    }\n" +
+                "}}";
+        String returnData = "";
+        mvcHelper.invokePutMethod("items/0", data)
+                .andExpect(status().isCreated())
+                .andExpect(content().string(equalTo(returnData)));
+    }
 
+    @Test
+    void testDeleteItemWhenEverythingIsOk() throws Exception {
+        String data = "{\n" +
+                "  \"firstname\": \"firstname\",\n" +
+                "  \"lastname\": \"lastname\",\n" +
+                "  \"email\": \"email@email.email\",\n" +
+                "  \"password\": \"wefhewbfwef\",\n" +
+                "  \"ToDoList\": {\n" +
+                "    \"items\": [\n" +
+                "      {\n" +
+                "        \"name\": \"name\",\n" +
+                "        \"content\": \"name's content\",\n" +
+                "        \"createdAt\": \"2021-05-09T12:48:20.322Z\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}";
+        String returnData = "";
+        mvcHelper.invokeDeleteMethod("items/0", data)
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(equalTo(returnData)));
     }
 }
