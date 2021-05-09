@@ -10,8 +10,10 @@ import org.esgi.todolist.models.ToDoList;
 import org.esgi.todolist.models.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -149,9 +151,19 @@ public class UserServiceTest {
 
         userService.createTodolist(user);
         user.getToDoList().add(item0).add(item1).add(item2).add(item3).add(item4).add(item5).add(item6);
-        doCallRealMethod().when(todoListServiceMock).addItem(Mockito.any(ToDoList.class), Mockito.any(Item.class));
-        doCallRealMethod().when(todoListServiceMock).isItemValid(Mockito.any(Item.class), Mockito.any(ToDoList.class), Mockito.anyInt());
-        assertDoesNotThrow(() -> userService.addItem(user, item7));
+
+        doAnswer(invocation -> {
+            ToDoList todolist = invocation.getArgument(0);
+            Item item = invocation.getArgument(1);
+            item.setCreatedAt(LocalDateTime.now());
+            todolist.add(item);
+            return null;
+        }).when(todoListServiceMock).addItem(Mockito.any(ToDoList.class), Mockito.any(Item.class));
+
+        doCallRealMethod().when(emailSenderServiceMock).sendWarningMessage(any(String.class));
+
+        userService.addItem(user, item7);
+        assertEquals(user.getToDoList().getItems().get(7), item7);
         verify(emailSenderServiceMock, times(1)).sendWarningMessage(any(String.class));
     }
 
@@ -174,9 +186,19 @@ public class UserServiceTest {
         final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
         final Item item = new Item("test", "content de test", LocalDateTime.now());
         userService.createTodolist(user);
-        assertDoesNotThrow(() -> {
-            userService.addItem(user, item);
-        });
+
+        doAnswer(invocation -> {
+            ToDoList todolist = invocation.getArgument(0);
+            Item itemAdd = invocation.getArgument(1);
+            itemAdd.setCreatedAt(LocalDateTime.now());
+            todolist.add(itemAdd);
+            return null;
+        }).when(todoListServiceMock).addItem(Mockito.any(ToDoList.class), Mockito.any(Item.class));
+
+
+        userService.addItem(user, item);
+        assertEquals(user.getToDoList().getItems().get(0), item);
+        userService.addItem(user, item);
     }
 
     @Test
@@ -199,10 +221,17 @@ public class UserServiceTest {
         final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
         final Item item = new Item("test", "content de test", LocalDateTime.now());
         userService.createTodolist(user);
-        assertDoesNotThrow(() -> {
-            userService.addItem(user, item);
-            userService.removeItem(user, 0);
-        });
+
+        doAnswer(invocation -> {
+            ToDoList todolist = invocation.getArgument(0);
+            int index = invocation.getArgument(1);
+            todolist.getItems().remove(index);
+            return null;
+        }).when(todoListServiceMock).removeItem(Mockito.any(ToDoList.class), Mockito.any(int.class));
+
+        user.getToDoList().add(item);
+        userService.removeItem(user, 0);
+        assertEquals(user.getToDoList().getItems().size(), 0);
     }
 
     @Test
@@ -227,13 +256,18 @@ public class UserServiceTest {
         final Item item = new Item("test", "content de test", LocalDateTime.now().minusMinutes(40));
         final Item itemUpdate = new Item("testUpdate", "content update", LocalDateTime.now());
 
-        doCallRealMethod().when(todoListServiceMock).addItem(Mockito.any(ToDoList.class), Mockito.any(Item.class));
-        doCallRealMethod().when(todoListServiceMock).isItemValid(Mockito.any(Item.class), Mockito.any(ToDoList.class), Mockito.anyInt());
+        doAnswer(invocation -> {
+            ToDoList todolist = invocation.getArgument(0);
+            int index = invocation.getArgument(1);
+            Item itemToUpdate = invocation.getArgument(2);
+            itemToUpdate.setCreatedAt(LocalDateTime.now());
+            todolist.getItems().set(index, itemToUpdate);
+            return null;
+        }).when(todoListServiceMock).updateItem(Mockito.any(ToDoList.class), Mockito.any(int.class), Mockito.any(Item.class));
 
-        assertDoesNotThrow(() -> {
-            userService.createTodolist(user);
-            userService.addItem(user, item);
-            userService.updateItem(user, itemUpdate, 0);
-        });
+        userService.createTodolist(user);
+        user.getToDoList().add(item);
+        userService.updateItem(user, itemUpdate, 0);
+        assertEquals(user.getToDoList().getItems().get(0), itemUpdate);
     }
 }
