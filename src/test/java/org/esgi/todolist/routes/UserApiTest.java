@@ -54,17 +54,6 @@ public class UserApiTest {
     }
 
     @Test
-    void testCreateToDoListWithBadUser() {
-        String data = "{ \"firstname\": \"\", \"lastname\": \"lastname\", \"email\": \"email@email.email\", \"password\": \"fewfvwouefbw;f\"}";
-        doThrow(new UserException("User is not valid")).when(userServiceMock).createTodolist(any(User.class));
-        Assertions.assertThatThrownBy(() -> {
-            mvcHelper.invokePostMethod("ToDoList", data)
-                    .andExpect(status().isBadRequest())
-                    .andExpect(content().string(equalTo(data)));
-        }).isInstanceOf(UserException.class).hasMessage("User is not valid");
-    }
-
-    @Test
     void testAddItemWhenEverythingIsOk() throws Exception {
         String data = "{\n" +
                 "    \"user\": {\n" +
@@ -98,9 +87,11 @@ public class UserApiTest {
                 "        \"password\": \"wrhvfewfvweb\",\n" +
                 "        \"ToDoList\": {\n" +
                 "            \"items\": [\n" +
+                "                {\n" +
                 "                \"name\": \"name\",\n" +
                 "                \"content\": \"name's content update\",\n" +
                 "                \"createdAt\": \"2021-05-09T11:02:15.202Z\"  \n" +
+                "                }\n" +
                 "            ]\n" +
                 "        }\n" +
                 "    },\n" +
@@ -109,10 +100,10 @@ public class UserApiTest {
                 "        \"content\": \"name's content\",\n" +
                 "        \"createdAt\": \"2021-05-09T11:02:15.202Z\"\n" +
                 "    }\n" +
-                "}}";
+                "}";
         String returnData = "";
         mvcHelper.invokePutMethod("items/0", data)
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(content().string(equalTo(returnData)));
     }
 
