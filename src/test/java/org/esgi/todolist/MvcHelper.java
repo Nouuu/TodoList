@@ -1,5 +1,6 @@
 package org.esgi.todolist;
 
+import org.esgi.todolist.commons.exceptions.GlobalExceptionHandler;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -18,6 +19,7 @@ public class MvcHelper {
     public MvcHelper(Object controller, String basePath) {
         this.mvc = MockMvcBuilders
                 .standaloneSetup(controller)
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
         this.basePath = basePath;
     }

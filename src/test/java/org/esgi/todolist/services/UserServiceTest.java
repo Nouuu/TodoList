@@ -18,8 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class UserServiceTest {
@@ -152,8 +151,8 @@ public class UserServiceTest {
         user.getToDoList().add(item0).add(item1).add(item2).add(item3).add(item4).add(item5).add(item6);
         doCallRealMethod().when(todoListServiceMock).addItem(Mockito.any(ToDoList.class), Mockito.any(Item.class));
         doCallRealMethod().when(todoListServiceMock).isItemValid(Mockito.any(Item.class), Mockito.any(ToDoList.class), Mockito.anyInt());
-
-        assertDoesNotThrow(()-> userService.addItem(user, item7));
+        assertDoesNotThrow(() -> userService.addItem(user, item7));
+        verify(emailSenderServiceMock, times(1)).sendWarningMessage(any(String.class));
     }
 
     @Test
@@ -212,7 +211,7 @@ public class UserServiceTest {
         final Item item = new Item("test", "content de test", LocalDateTime.now());
 
         Assertions.assertThatThrownBy(() -> {
-           userService.updateItem(user, item, 0);
+            userService.updateItem(user, item, 0);
         }).isInstanceOf(UserException.class).hasMessage("User invalid or don't have list");
     }
 

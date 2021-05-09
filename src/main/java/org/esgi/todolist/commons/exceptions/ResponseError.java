@@ -34,4 +34,13 @@ public class ResponseError {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "\"status\":" + status +
+                ",\"exception\":\"" + exception + '\"' +
+                ",\"message\":\"" + message + '\"' +
+                '}';
+    }
 }
