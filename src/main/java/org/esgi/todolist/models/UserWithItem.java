@@ -1,7 +1,5 @@
 package org.esgi.todolist.models;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

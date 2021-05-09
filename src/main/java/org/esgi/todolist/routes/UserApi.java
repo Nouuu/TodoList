@@ -1,6 +1,5 @@
 package org.esgi.todolist.routes;
 
-import org.esgi.todolist.models.Item;
 import org.esgi.todolist.models.User;
 import org.esgi.todolist.models.UserWithItem;
 import org.esgi.todolist.services.UserService;
@@ -14,7 +13,9 @@ public class UserApi {
     private final UserService userService;
 
     @Autowired
-    public UserApi(UserService userService) { this.userService = userService; }
+    public UserApi(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/ToDoList")
     public ResponseEntity<User> CreateToDoList(@RequestBody User user) {
