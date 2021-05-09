@@ -1,5 +1,8 @@
 package org.esgi.todolist.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public class Item {
@@ -7,7 +10,10 @@ public class Item {
     private String content;
     private LocalDateTime createdAt;
 
-    public Item(String name, String content, LocalDateTime createdAt) {
+    @JsonCreator
+    public Item(@JsonProperty("name") String name,
+                @JsonProperty("content") String content,
+                @JsonProperty("createdAt") LocalDateTime createdAt) {
         this.name = name;
         this.content = content;
         this.createdAt = createdAt;

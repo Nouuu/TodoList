@@ -6,7 +6,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 public class MvcHelper {
@@ -30,6 +32,22 @@ public class MvcHelper {
 
     public ResultActions invokeGetMethod(String path) throws Exception {
         return mvc.perform(get("http://<base_url>/" + basePath + "/" + path)
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print());
+    }
+
+    public ResultActions invokePutMethod(String path, String body) throws Exception {
+        return mvc.perform(put("http://<base_url>/" + basePath + "/" + path)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print());
+    }
+
+    public ResultActions invokeDeleteMethod(String path, String body) throws Exception {
+        return mvc.perform(delete("http://<base_url>/" + basePath + "/" + path)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
                 .accept(MediaType.APPLICATION_JSON))
                 .andDo(print());
     }
