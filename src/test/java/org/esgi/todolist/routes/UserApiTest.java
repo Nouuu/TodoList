@@ -27,16 +27,13 @@ public class UserApiTest {
     }
 
     @Test
-    void testCreateToDoListWithGoodUser() {
+    void testCreateToDoListWithGoodUser() throws Exception {
         String data = "{ \"firstname\": \"firstname\", \"lastname\": \"lastename\", \"email\": \"email@email.email\", \"password\": \"fewfvwouefbw;f\"}";
-        try {
             mvcHelper.invokePostMethod("ToDoList", data)
-                    .andExpect(status().isOk())
+                    .andExpect(status().isCreated())
                     .andExpect(content().string(equalTo(data)));
-        } catch (Exception e) {
 
         }
-    }
 
     @Test
     void testCreateToDoListWithBadUser() {

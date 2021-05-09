@@ -1,6 +1,9 @@
 package org.esgi.todolist.models;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class User {
     private String firstname;
     private String lastname;
@@ -8,12 +11,28 @@ public class User {
     private String password;
     private ToDoList toDoList;
 
-    public User(String firstname, String lastname, String email, String password) {
+    public User(String firstname,
+                String lastname,
+                String email,
+                String password) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
         this.toDoList = null;
+    }
+
+    @JsonCreator
+    public User(@JsonProperty("firstname") String firstname,
+                @JsonProperty("lastname") String lastname,
+                @JsonProperty("email") String email,
+                @JsonProperty("password") String password,
+                @JsonProperty("toDoList") ToDoList toDoList) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.password = password;
+        this.toDoList = toDoList;
     }
 
     public void setFirstname(String firstname) {
