@@ -4,11 +4,29 @@ package org.esgi.todolist.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "USER")
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "FIRSTNAME", nullable = false)
     private String firstname;
+
+    @Column(name = "LASTNAME", nullable = false)
     private String lastname;
+
+    @Column(name = "EMAIL", nullable = false)
     private String email;
+
+    @Column(name = "PASSWORD", nullable = false)
     private String password;
+
+    @OneToOne(cascade = CascadeType.REMOVE)
     private ToDoList toDoList;
 
     public User(String firstname,
@@ -20,6 +38,16 @@ public class User {
         this.email = email;
         this.password = password;
         this.toDoList = null;
+    }
+
+
+    public User(int id, String firstname, String lastname, String email, String password, ToDoList toDoList) {
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.password = password;
+        this.toDoList = toDoList;
     }
 
     @JsonCreator

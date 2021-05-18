@@ -2,18 +2,40 @@ package org.esgi.todolist.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.annotation.CreatedDate;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "ITEM")
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+
+    @Column(name = "NAME", nullable = false)
     private String name;
+
+    @Column(name = "CONTENT", nullable = false)
     private String content;
+
+    @CreatedDate
     private LocalDateTime createdAt;
+
 
     @JsonCreator
     public Item(@JsonProperty("name") String name,
                 @JsonProperty("content") String content,
                 @JsonProperty("createdAt") LocalDateTime createdAt) {
+        this.name = name;
+        this.content = content;
+        this.createdAt = createdAt;
+    }
+
+    public Item(int id, String name, String content, LocalDateTime createdAt) {
+        this.id = id;
         this.name = name;
         this.content = content;
         this.createdAt = createdAt;
