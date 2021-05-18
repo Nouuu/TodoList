@@ -9,6 +9,7 @@ import org.esgi.todolist.models.User;
 import org.esgi.todolist.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,8 +19,7 @@ import org.springframework.http.HttpStatus;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,11 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class UserApiTest {
 
-    @InjectMocks
+//    @InjectMocks
     @Autowired
     private UserApi userApi;
 
-    @MockBean
+//    @MockBean(answer = Answers.CALLS_REAL_METHODS)
     private UserService userServiceMock;
 
     private MvcHelper mvcHelper;
@@ -43,10 +43,21 @@ public class UserApiTest {
 
     @Test
     void testCreateToDoListWithGoodUser() throws Exception {
-        String data = "{ \"firstname\": \"lastname\", \"lastname\": \"lastname\", \"email\": \"email@email.email\", \"password\": \"fewfvwouefbw;f\"}";
-        String returnData = "{\"firstname\":\"firstname\",\"lastname\":\"lastname\",\"email\":\"email@email.email\",\"password\":\"fewfvwouefbw;f\",\"toDoList\":{\"items\":[]}}";
+        String data = "{ " +
+                "\"firstname\": \"firstname\", " +
+                "\"lastname\": \"lastname\", " +
+                "\"email\": \"email@email.email\", " +
+                "\"password\": \"fewfvwouefbw;f\"" +
+                "}";
+        String returnData = "{" +
+                "\"firstname\":\"firstname\"," +
+                "\"lastname\":\"lastname\"," +
+                "\"email\":\"email@email.email\"," +
+                "\"password\":\"fewfvwouefbw;f\"," +
+                "\"toDoList\":{\"items\":[]}" +
+                "}";
 
-        doReturn(new User("firstname", "lastname", "email@email.email", "fewfvwouefbw;f", new ToDoList())).when(userServiceMock).createTodolist(any());
+//        doReturn(new User("firstname", "lastname", "email@email.email", "fewfvwouefbw;f", new ToDoList())).when(userServiceMock).createTodolist(any());
         mvcHelper.invokePostMethod("ToDoList", data)
                 .andExpect(status().isCreated())
                 .andExpect(content().string(equalTo(returnData)));
@@ -130,7 +141,7 @@ public class UserApiTest {
     void testExceptionThrowedResponseEntity() throws Exception {
         String dataInvalidEmail = "{ \"firstname\": \"lastname\", \"lastname\": \"lastname\", \"email\": \"invalidemail\", \"password\": \"fewfvwouefbw;f\"}";
 
-        doThrow(new UserException("User is not valid")).when(userServiceMock).createTodolist(any(User.class));
+//        doThrow(new UserException("User is not valid")).when(userServiceMock).createTodolist(any(User.class));
 
         String expected = new ResponseError(HttpStatus.BAD_REQUEST.value(),
                 UserException.class.toString(),
