@@ -1,7 +1,6 @@
 package org.esgi.todolist.routes;
 
 import org.esgi.todolist.models.User;
-import org.esgi.todolist.models.UserWithItem;
 import org.esgi.todolist.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,15 +18,16 @@ public class UserApi {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUser(@PathVariable String userId) {
-        return new ResponseEntity<>(
-                userService.getUser(userId),
-                HttpStatus.OK
-        );
+    public ResponseEntity<User> getUser(@PathVariable int userId) {
+        User user = userService.getUser(userId);
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/")
-    public ResponseEntity<User> updateUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody User user) {
         return new ResponseEntity<>(
                 userService.createUser(user),
                 HttpStatus.OK
@@ -35,15 +35,16 @@ public class UserApi {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(@PathVariable String userId, @RequestBody User updatedUser) {
-        return new ResponseEntity<>(
-                userService.updateUser(userId, updatedUser),
-                HttpStatus.OK
-        );
+    public ResponseEntity<User> updateUser(@PathVariable int userId, @RequestBody User updatedUser) {
+        User user = userService.updateUser(userId, updatedUser);
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> updateUser(@PathVariable String userId) {
+    public ResponseEntity<String> updateUser(@PathVariable int userId) {
         userService.deleteUser(userId);
         return new ResponseEntity<>(
                 "User " + userId + " deleted",
