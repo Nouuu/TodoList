@@ -29,38 +29,16 @@ public class User {
     @OneToOne(mappedBy = "user")
     private TodoList toDoList;
 
-    public User(String firstname,
-                String lastname,
-                String email,
-                String password) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.email = email;
-        this.password = password;
-        this.toDoList = null;
-    }
-
-
-    public User(int id, String firstname, String lastname, String email, String password, TodoList toDoList) {
-        this.id = id;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.email = email;
-        this.password = password;
-        this.toDoList = toDoList;
-    }
 
     @JsonCreator
     public User(@JsonProperty("firstname") String firstname,
                 @JsonProperty("lastname") String lastname,
                 @JsonProperty("email") String email,
-                @JsonProperty("password") String password,
-                @JsonProperty("toDoList") TodoList toDoList) {
+                @JsonProperty("password") String password) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
-        this.toDoList = toDoList;
     }
 
     public User() {

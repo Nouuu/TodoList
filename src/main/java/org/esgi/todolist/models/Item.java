@@ -44,6 +44,13 @@ public class Item {
         this.createdAt = createdAt;
     }
 
+    public Item(String name, String content, LocalDateTime createdAt,TodoList toDoList) {
+        this.name = name;
+        this.content = content;
+        this.toDoList = toDoList;
+        this.createdAt = createdAt;
+    }
+
     public Item(String name, String content) {
         this.name = name;
         this.content = content;
@@ -87,5 +94,9 @@ public class Item {
 
     public TodoList getToDoList() {
         return toDoList;
+    }
+
+    public void setToDoList(TodoList toDoList) {
+        this.toDoList = toDoList;
     }
 }

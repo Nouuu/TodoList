@@ -19,7 +19,12 @@ public class TodoList {
     private User user;
 
     public TodoList() {
-        this.items = new ArrayList<Item>();
+        this.items = new ArrayList<>();
+    }
+
+    public TodoList(User user) {
+        this.items = new ArrayList<>();
+        this.user = user;
     }
 
     public TodoList(int id, ArrayList<Item> items) {
