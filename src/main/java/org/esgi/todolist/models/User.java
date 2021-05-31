@@ -26,8 +26,8 @@ public class User {
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
-    private ToDoList toDoList;
+    @OneToOne(mappedBy = "user")
+    private TodoList toDoList;
 
     public User(String firstname,
                 String lastname,
@@ -41,7 +41,7 @@ public class User {
     }
 
 
-    public User(int id, String firstname, String lastname, String email, String password, ToDoList toDoList) {
+    public User(int id, String firstname, String lastname, String email, String password, TodoList toDoList) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -55,12 +55,16 @@ public class User {
                 @JsonProperty("lastname") String lastname,
                 @JsonProperty("email") String email,
                 @JsonProperty("password") String password,
-                @JsonProperty("toDoList") ToDoList toDoList) {
+                @JsonProperty("toDoList") TodoList toDoList) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
         this.toDoList = toDoList;
+    }
+
+    public User() {
+
     }
 
     public void setFirstname(String firstname) {
@@ -79,15 +83,15 @@ public class User {
         this.password = password;
     }
 
-    public void setToDoList(ToDoList toDoList) {
+    public void setToDoList(TodoList toDoList) {
         this.toDoList = toDoList;
     }
 
     public void createTodolist() {
-        this.toDoList = new ToDoList();
+        this.toDoList = new TodoList();
     }
 
-    public ToDoList getToDoList() {
+    public TodoList getToDoList() {
         return toDoList;
     }
 
@@ -107,6 +111,15 @@ public class User {
         return password;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
     @Override
     public String toString() {
         return "User{" +
@@ -116,4 +129,6 @@ public class User {
                 ", password='" + password + '\'' +
                 '}';
     }
+
+
 }

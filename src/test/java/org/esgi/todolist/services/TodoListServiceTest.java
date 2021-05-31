@@ -3,7 +3,7 @@ package org.esgi.todolist.services;
 import org.assertj.core.api.Assertions;
 import org.esgi.todolist.commons.exceptions.TodoListException;
 import org.esgi.todolist.models.Item;
-import org.esgi.todolist.models.ToDoList;
+import org.esgi.todolist.models.TodoList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class TodoListServiceTest {
@@ -26,7 +24,7 @@ class TodoListServiceTest {
     Item item3;
     Item item4;
     Item item5;
-    ToDoList todolist;
+    TodoList todolist;
 
     @BeforeEach
     void setUp() {
@@ -35,7 +33,7 @@ class TodoListServiceTest {
         item3 = new Item("Item 3", "Content for item 3", LocalDateTime.now().minusMinutes(90));
         item4 = new Item("Item 4", "Content for item 4", LocalDateTime.now().minusMinutes(60));
         item5 = new Item("Item 5", "Content for item 5", LocalDateTime.now().minusMinutes(30));
-        todolist = new ToDoList();
+        todolist = new TodoList();
         todolist.add(item1).add(item2).add(item3).add(item4).add(item5);
     }
 

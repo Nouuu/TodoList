@@ -2,7 +2,7 @@ package org.esgi.todolist.services;
 
 import org.esgi.todolist.commons.exceptions.TodoListException;
 import org.esgi.todolist.models.Item;
-import org.esgi.todolist.models.ToDoList;
+import org.esgi.todolist.models.TodoList;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 public class TodoListService {
     private final int contentMaxLength = 1000;
 
-    public void addItem(ToDoList todolist, Item item) {
+    public void addItem(TodoList todolist, Item item) {
         if (todolist == null) {
             throw new TodoListException("Todo List is null");
         }
@@ -37,7 +37,7 @@ public class TodoListService {
         todolist.add(item);
     }
 
-    public void removeItem(ToDoList todolist, int itemIndex) {
+    public void removeItem(TodoList todolist, int itemIndex) {
         if (todolist == null) {
             throw new TodoListException("Todo List is null");
         }
@@ -48,7 +48,7 @@ public class TodoListService {
         todolist.remove(itemIndex);
     }
 
-    public void updateItem(ToDoList todolist, int itemIndex, Item item) {
+    public void updateItem(TodoList todolist, int itemIndex, Item item) {
         if (todolist == null) {
             throw new TodoListException("Todo List is null");
         }
@@ -62,7 +62,7 @@ public class TodoListService {
         todolist.getItems().set(itemIndex, item);
     }
 
-    public boolean isItemValid(Item item, ToDoList toDoList, int ignoreIndex) {
+    public boolean isItemValid(Item item, TodoList toDoList, int ignoreIndex) {
         if (item == null) {
             return false;
         }

@@ -21,6 +21,9 @@ public class Item {
     @Column(name = "CONTENT", nullable = false)
     private String content;
 
+    @ManyToOne
+    private TodoList toDoList;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -47,6 +50,9 @@ public class Item {
         this.createdAt = LocalDateTime.now();
     }
 
+    public Item() {
+    }
+
     public String getName() {
         return name;
     }
@@ -65,5 +71,21 @@ public class Item {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public TodoList getToDoList() {
+        return toDoList;
     }
 }
