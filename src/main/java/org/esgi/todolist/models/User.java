@@ -26,7 +26,7 @@ public class User {
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
     private TodoList toDoList;
 
 
@@ -63,10 +63,6 @@ public class User {
 
     public void setToDoList(TodoList toDoList) {
         this.toDoList = toDoList;
-    }
-
-    public void createTodolist() {
-        this.toDoList = new TodoList();
     }
 
     public TodoList getToDoList() {

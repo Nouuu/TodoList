@@ -21,7 +21,7 @@ public class Item {
     @Column(name = "CONTENT", nullable = false)
     private String content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private TodoList toDoList;
 
     @CreatedDate

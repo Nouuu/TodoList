@@ -12,10 +12,10 @@ public class TodoList {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToMany(mappedBy = "toDoList")
-    private final List<Item> items;
+    @OneToMany(mappedBy = "toDoList", fetch = FetchType.EAGER)
+    private List<Item> items;
 
-    @OneToOne()
+    @OneToOne(fetch = FetchType.EAGER)
     private User user;
 
     public TodoList() {
@@ -59,5 +59,9 @@ public class TodoList {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
     }
 }
