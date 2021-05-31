@@ -1,9 +1,12 @@
 package org.esgi.todolist.services;
 
 import org.esgi.todolist.commons.exceptions.UserException;
+import org.esgi.todolist.models.TodoList;
 import org.esgi.todolist.models.User;
+import org.esgi.todolist.repositories.TodoListRepository;
 import org.esgi.todolist.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -15,11 +18,20 @@ public class UserService {
 
     private final TodoListService todoListService;
     private final UserRepository userRepository;
+    private final TodoListRepository todoListRepository;
+    private final int passwordMinLength;
+    private final int passwordMaxLength;
 
     @Autowired
-    public UserService(TodoListService todoListService, UserRepository userRepository) {
+
+    public UserService(TodoListService todoListService, UserRepository userRepository,
+                       TodoListRepository todoListRepository, @Value("${user.password.min-length}") int passwordMinLength,
+                       @Value("${user.password.max-length}") int passwordMaxLength) {
         this.todoListService = todoListService;
         this.userRepository = userRepository;
+        this.todoListRepository = todoListRepository;
+        this.passwordMinLength = passwordMinLength;
+        this.passwordMaxLength = passwordMaxLength;
     }
 
     public boolean isValid(User user) {
@@ -28,8 +40,8 @@ public class UserService {
                 && StringUtils.hasText(user.getFirstname())
                 && StringUtils.hasText(user.getLastname())
                 && StringUtils.hasLength(user.getPassword())
-                && user.getPassword().length() >= 8
-                && user.getPassword().length() < 40;
+                && user.getPassword().length() >= passwordMinLength
+                && user.getPassword().length() < passwordMaxLength;
     }
 
     private boolean isValidEmail(String email) {
@@ -79,15 +91,15 @@ public class UserService {
 
     @Transactional
     public User createTodolist(int userId) {
-        Optional<User> userFromDB = userRepository.findById(userId);
-        if (userFromDB.isEmpty()) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
             throw new UserException("User not found on id " + userId);
         }
-        User user = userFromDB.get();
-
         if (user.getToDoList() == null) {
-            user.createTodolist();
-            return userRepository.save(user);
+            TodoList todoList = new TodoList(user);
+            todoList = todoListRepository.save(todoList);
+            user.setToDoList(todoList);
+            return user;
         } else {
             throw new UserException("User have already a todolist");
         }
