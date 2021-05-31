@@ -4,25 +4,38 @@ import org.assertj.core.api.Assertions;
 import org.esgi.todolist.commons.exceptions.TodoListException;
 import org.esgi.todolist.models.Item;
 import org.esgi.todolist.models.TodoList;
+import org.esgi.todolist.models.User;
 import org.esgi.todolist.repositories.ItemRepository;
 import org.esgi.todolist.repositories.TodoListRepository;
+import org.esgi.todolist.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 @SpringBootTest
 @ActiveProfiles("test")
 class TodoListServiceTest {
 
+    @InjectMocks
     private final TodoListService todoListService;
+
+    @MockBean
+    private EmailSenderService emailSenderServiceMock;
+
     private final TodoListRepository todoListRepository;
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
 
     // Data to work with
@@ -58,10 +71,11 @@ class TodoListServiceTest {
     }
 
     @Autowired
-    public TodoListServiceTest(TodoListService todoListService, TodoListRepository todoListRepository, ItemRepository itemRepository) {
+    public TodoListServiceTest(TodoListService todoListService, TodoListRepository todoListRepository, ItemRepository itemRepository, UserRepository userRepository) {
         this.todoListService = todoListService;
         this.todoListRepository = todoListRepository;
         this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
     }
 
     @Test
@@ -261,5 +275,23 @@ class TodoListServiceTest {
         Item newItem = new Item("new Item", "n".repeat(1001));
         Assertions.assertThat(todoListService.isItemValid(newItem, todolist, -1)).isFalse();
     }
+
+    @Test
+    public void addItemToSendMail() {
+        User user = userRepository.save(new User("firstname", "lastname", "example@email.com", "validpassword"));
+        todolist.setUser(user);
+        todoListRepository.save(todolist);
+        itemRepository.save(new Item("new Item 5", "new item content", LocalDateTime.now().minusMinutes(120), todolist));
+        itemRepository.save(new Item("new Item 6", "new item content", LocalDateTime.now().minusMinutes(120), todolist));
+        itemRepository.save(new Item("new Item 7", "new item content", LocalDateTime.now().minusMinutes(30), todolist));
+
+        todolist = todoListService.addItem(
+                todolist.getId(),
+                new Item("new Item 8", "new item content", LocalDateTime.now()));
+
+        Assertions.assertThat(todolist.getItems().size()).isEqualTo(8);
+        verify(emailSenderServiceMock, times(1)).sendWarningMessage(user.getEmail());
+    }
+
 
 }
