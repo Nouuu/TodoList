@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-@DataJpaTest
+@ActiveProfiles("test")
 public class UserServiceTest {
 
     @InjectMocks
