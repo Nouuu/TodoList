@@ -26,11 +26,7 @@ public class UserServiceTest {
     private final int passwordMaxLength;
     User user;
 
-    @InjectMocks
     private final UserService userService;
-
-    @MockBean
-    private TodoListService todoListServiceMock;
 
     private final UserRepository userRepository;
     private final TodoListRepository todoListRepository;
