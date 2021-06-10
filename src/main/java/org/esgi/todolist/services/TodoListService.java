@@ -5,6 +5,7 @@ import org.esgi.todolist.models.Item;
 import org.esgi.todolist.models.TodoList;
 import org.esgi.todolist.repositories.ItemRepository;
 import org.esgi.todolist.repositories.TodoListRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ public class TodoListService {
     private final TodoListRepository todoListRepository;
     private final EmailSenderService emailSenderService;
 
-
+    @Autowired
     public TodoListService(@Value("${item.content.max-length}") int contentMaxLength, ItemRepository itemRepository, TodoListRepository todoListRepository, EmailSenderService emailSenderService) {
         this.contentMaxLength = contentMaxLength;
         this.itemRepository = itemRepository;
@@ -57,9 +58,9 @@ public class TodoListService {
         item.setCreatedAt(now);
         item.setToDoList(todoList);
         itemRepository.save(item);
-        todoList = todoListRepository.findById(todoList.getId()).orElse(null);
+//        todoList = todoListRepository.findById(todoList.getId()).orElse(null);
 
-        assert todoList != null;
+//        assert todoList != null;
         if (todoList.getItems().size() == 8) {
             emailSenderService.sendWarningMessage(todoList.getUser().getEmail());
         }

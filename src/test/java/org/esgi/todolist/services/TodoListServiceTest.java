@@ -1,5 +1,6 @@
 package org.esgi.todolist.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.assertj.core.api.Assertions;
 import org.esgi.todolist.commons.exceptions.TodoListException;
 import org.esgi.todolist.models.Item;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.times;
@@ -29,15 +31,9 @@ class TodoListServiceTest {
 
     @InjectMocks
     private final TodoListService todoListService;
-
-    @MockBean
-    private EmailSenderService emailSenderServiceMock;
-
     private final TodoListRepository todoListRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-
-
     // Data to work with
     Item item1;
     Item item2;
@@ -45,6 +41,16 @@ class TodoListServiceTest {
     Item item4;
     Item item5;
     TodoList todolist;
+    @MockBean
+    private EmailSenderService emailSenderServiceMock;
+
+    @Autowired
+    public TodoListServiceTest(TodoListService todoListService, TodoListRepository todoListRepository, ItemRepository itemRepository, UserRepository userRepository) {
+        this.todoListService = todoListService;
+        this.todoListRepository = todoListRepository;
+        this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
+    }
 
     @BeforeEach
     void setUp() {
@@ -68,14 +74,7 @@ class TodoListServiceTest {
         item5 = new Item("Item 5", "Content for item 5", LocalDateTime.now().minusMinutes(30));
         item5.setToDoList(todolist);
         item5 = itemRepository.save(item5);
-    }
-
-    @Autowired
-    public TodoListServiceTest(TodoListService todoListService, TodoListRepository todoListRepository, ItemRepository itemRepository, UserRepository userRepository) {
-        this.todoListService = todoListService;
-        this.todoListRepository = todoListRepository;
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
+        todolist = todoListRepository.findById(todolist.getId()).orElseThrow();
     }
 
     @Test
@@ -84,6 +83,20 @@ class TodoListServiceTest {
         Item newItem = new Item("new Item", "new item content");
         todolist = todoListService.addItem(todolist.getId(), newItem);
         List<Item> items = itemRepository.getAllByToDoListOrderByCreatedAtAsc(todolist);
+        Assertions.assertThat(items.stream()
+                .filter(i -> i.getName().equals(newItem.getName()))
+                .count())
+                .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Add item in todolist with no items")
+    void addItemEmptyList() {
+        itemRepository.deleteAll(Arrays.asList(item1, item2, item3, item4, item5));
+        Item newItem = new Item("new Item", "new item content");
+        todolist = todoListService.addItem(todolist.getId(), newItem);
+        List<Item> items = itemRepository.getAllByToDoListOrderByCreatedAtAsc(todolist);
+        Assertions.assertThat(items.size()).isEqualTo(1);
         Assertions.assertThat(items.stream()
                 .filter(i -> i.getName().equals(newItem.getName()))
                 .count())
@@ -293,5 +306,32 @@ class TodoListServiceTest {
         verify(emailSenderServiceMock, times(1)).sendWarningMessage(user.getEmail());
     }
 
+    @Test
+    public void getTodoList() throws JsonProcessingException {
+        Assertions.assertThat(todoListService.getTodoList(todolist.getId()).toJSON()).isEqualTo(todolist.toJSON());
+    }
+
+    @Test
+    public void getTodoListNotFound() throws JsonProcessingException {
+        Assertions.assertThat(todoListService.getTodoList(0)).isNull();
+    }
+
+    @Test
+    public void deleteTodoList() {
+        todoListService.deleteTodoList(todolist.getId());
+        Assertions.assertThat(todoListService.getTodoList(todolist.getId())).isNull();
+        Assertions.assertThat(itemRepository.findById(item1.getId())).isEmpty();
+        Assertions.assertThat(itemRepository.findById(item2.getId())).isEmpty();
+        Assertions.assertThat(itemRepository.findById(item3.getId())).isEmpty();
+        Assertions.assertThat(itemRepository.findById(item4.getId())).isEmpty();
+        Assertions.assertThat(itemRepository.findById(item5.getId())).isEmpty();
+    }
+
+    @Test
+    public void deleteInexsitantTodoList() {
+        Assertions.assertThatThrownBy(() -> todoListService.deleteTodoList(0))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Trying to delete todo list but not found on id 0");
+    }
 
 }

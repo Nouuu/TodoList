@@ -1,5 +1,6 @@
 package org.esgi.todolist.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.assertj.core.api.Assertions;
 import org.esgi.todolist.commons.exceptions.UserException;
 import org.esgi.todolist.models.User;
@@ -17,6 +18,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -24,20 +27,24 @@ public class UserServiceTest {
 
     private final int passwordMinLength;
     private final int passwordMaxLength;
-    User user;
-
+    @InjectMocks
     private final UserService userService;
-
     private final UserRepository userRepository;
     private final TodoListRepository todoListRepository;
     private final ItemRepository itemRepository;
+    User user;
+    @MockBean
+    private TodoListService todoListService;
 
 
     @Autowired
-    public UserServiceTest(UserService userService, UserRepository userRepository,
+    public UserServiceTest(UserService userService,
+                           UserRepository userRepository,
+                           TodoListRepository todoListRepository,
+                           ItemRepository itemRepository,
                            @Value("${user.password.min-length}") int passwordMinLength,
-                           @Value("${user.password.max-length}") int passwordMaxLength,
-                           TodoListRepository todoListRepository, ItemRepository itemRepository) {
+                           @Value("${user.password.max-length}") int passwordMaxLength
+    ) {
         this.passwordMinLength = passwordMinLength;
         this.passwordMaxLength = passwordMaxLength;
         this.userService = userService;
@@ -135,5 +142,85 @@ public class UserServiceTest {
         Assertions.assertThatThrownBy(() -> userService.createTodolist(user.getId()))
                 .isInstanceOf(UserException.class)
                 .hasMessage("User have already a todolist");
+    }
+
+    @Test
+    public void getUser() throws JsonProcessingException {
+        Assertions.assertThat(userService.getUser(user.getId()).toJSON()).isEqualTo(user.toJSON());
+    }
+
+    @Test
+    public void getUserNotFound() throws JsonProcessingException {
+        Assertions.assertThat(userService.getUser(0)).isNull();
+    }
+
+    @Test
+    public void createUser() throws JsonProcessingException {
+        User newUser = new User("firstname", "lastname", "email@email.com", "validpassword");
+        newUser = userService.createUser(newUser);
+        Assertions.assertThat(newUser.getFirstname()).isEqualTo("firstname");
+        Assertions.assertThat(newUser.getLastname()).isEqualTo("lastname");
+        Assertions.assertThat(newUser.getEmail()).isEqualTo("email@email.com");
+        Assertions.assertThat(newUser.getPassword()).isEqualTo("validpassword");
+    }
+
+    @Test
+    public void createInvalidUser() {
+        User newUser = new User("", "lastname", "email@email.com", "validpassword");
+        Assertions.assertThatThrownBy(() -> userService.createUser(newUser))
+                .isInstanceOf(UserException.class)
+                .hasMessage("User is not valid");
+    }
+
+    @Test
+    public void updateUser() {
+        user.setFirstname("newFirstname");
+        User updatedUser = userService.updateUser(user.getId(), user);
+        Assertions.assertThat(updatedUser.getFirstname()).isEqualTo("newFirstname");
+        Assertions.assertThat(updatedUser.getLastname()).isEqualTo(user.getLastname());
+        Assertions.assertThat(updatedUser.getEmail()).isEqualTo(user.getEmail());
+        Assertions.assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
+
+    }
+
+    @Test
+    public void updateInvalidUser() {
+        user.setLastname("");
+        Assertions.assertThatThrownBy(() -> userService.updateUser(user.getId(), user))
+                .isInstanceOf(UserException.class)
+                .hasMessage("User is not valid");
+    }
+
+    @Test
+    public void updateNullUser() {
+        Assertions.assertThat(userService.updateUser(0, user)).isNull();
+    }
+
+    @Test
+    public void deleteUser() {
+        userService.deleteUser(user.getId());
+        Assertions.assertThat(userRepository.findById(user.getId())).isEmpty();
+    }
+
+    @Test
+    public void deleteUserWithTodoList() {
+        doAnswer(invocation -> {
+            int id = invocation.getArgument(0);
+            todoListRepository.deleteById(id);
+            return null;
+        }).when(todoListService).deleteTodoList(any(int.class));
+
+        user = userService.createTodolist(user.getId());
+        userService.deleteUser(user.getId());
+
+        Assertions.assertThat(userRepository.findById(user.getId())).isEmpty();
+        Assertions.assertThat(itemRepository.findById(user.getToDoList().getId())).isEmpty();
+    }
+
+    @Test
+    public void deleteInexistingUser() {
+        Assertions.assertThatThrownBy(() -> userService.deleteUser(0))
+                .isInstanceOf(UserException.class)
+                .hasMessage("User not found on id 0");
     }
 }

@@ -1,5 +1,9 @@
 package org.esgi.todolist.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +19,8 @@ public class TodoList {
     @OneToMany(mappedBy = "toDoList", fetch = FetchType.EAGER)
     private List<Item> items;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne()
+    @JsonIgnore
     private User user;
 
     public TodoList() {
@@ -27,18 +32,9 @@ public class TodoList {
         this.user = user;
     }
 
-    public TodoList(int id, ArrayList<Item> items) {
-        this.id = id;
-        this.items = items;
-    }
-
     public TodoList add(Item item) {
         items.add(item);
         return this;
-    }
-
-    public void remove(int index) {
-        items.remove(index);
     }
 
     public List<Item> getItems() {
@@ -61,7 +57,13 @@ public class TodoList {
         this.id = id;
     }
 
-    public void setItems(List<Item> items) {
-        this.items = items;
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+/*
+        return "{\"id\":" + this.id +
+                ",\"items\":[" + this.items.stream().map(Item::toJSON).collect(Collectors.joining(", ")) +
+                "],\"user\":" + this.user.getId() + "}";
+*/
     }
 }

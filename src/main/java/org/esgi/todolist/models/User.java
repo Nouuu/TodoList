@@ -3,6 +3,8 @@ package org.esgi.todolist.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.persistence.*;
 
@@ -45,44 +47,44 @@ public class User {
 
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public TodoList getToDoList() {
+        return toDoList;
     }
 
     public void setToDoList(TodoList toDoList) {
         this.toDoList = toDoList;
     }
 
-    public TodoList getToDoList() {
-        return toDoList;
-    }
-
     public String getFirstname() {
         return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
     }
 
     public String getLastname() {
         return lastname;
     }
 
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public int getId() {
@@ -93,16 +95,15 @@ public class User {
         this.id = id;
     }
 
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "firstname='" + firstname + '\'' +
-                ", lastname='" + lastname + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+/*
+        return "{\"id\":" + this.id +
+                ",\"firstname\":\"" + this.firstname +
+                "\",\"lastname\":\"" + lastname +
+                "\",\"email\":\"" + email +
+                "\",\"password\":\"" + password +
+                "\",\"toDoList\":" + toDoList.toJSON() + "}";*/
     }
-
-
 }
