@@ -2,20 +2,12 @@ package org.esgi.todolist.routes;
 
 
 import org.esgi.todolist.MvcHelper;
-import org.esgi.todolist.commons.exceptions.ResponseError;
-import org.esgi.todolist.commons.exceptions.UserException;
 import org.esgi.todolist.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
