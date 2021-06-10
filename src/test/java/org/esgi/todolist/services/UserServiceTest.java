@@ -10,12 +10,17 @@ import org.esgi.todolist.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -25,7 +30,11 @@ public class UserServiceTest {
     private final int passwordMaxLength;
     User user;
 
+    @InjectMocks
     private final UserService userService;
+
+    @MockBean
+    private TodoListService todoListService;
 
     private final UserRepository userRepository;
     private final TodoListRepository todoListRepository;
@@ -33,10 +42,13 @@ public class UserServiceTest {
 
 
     @Autowired
-    public UserServiceTest(UserService userService, UserRepository userRepository,
+    public UserServiceTest(UserService userService,
+                           UserRepository userRepository,
+                           TodoListRepository todoListRepository,
+                           ItemRepository itemRepository,
                            @Value("${user.password.min-length}") int passwordMinLength,
-                           @Value("${user.password.max-length}") int passwordMaxLength,
-                           TodoListRepository todoListRepository, ItemRepository itemRepository) {
+                           @Value("${user.password.max-length}") int passwordMaxLength
+    ) {
         this.passwordMinLength = passwordMinLength;
         this.passwordMaxLength = passwordMaxLength;
         this.userService = userService;
@@ -196,16 +208,23 @@ public class UserServiceTest {
 
     @Test
     public void deleteUserWithTodoList() {
+        doAnswer(invocation -> {
+            int id = invocation.getArgument(0);
+            todoListRepository.deleteById(id);
+            return null;
+        }).when(todoListService).deleteTodoList(any(int.class));
+
         user = userService.createTodolist(user.getId());
         userService.deleteUser(user.getId());
+
         Assertions.assertThat(userRepository.findById(user.getId())).isEmpty();
         Assertions.assertThat(itemRepository.findById(user.getToDoList().getId())).isEmpty();
     }
 
     @Test
     public void deleteInexistingUser() {
-        Assertions.assertThatThrownBy(()->userService.deleteUser(0))
+        Assertions.assertThatThrownBy(() -> userService.deleteUser(0))
                 .isInstanceOf(UserException.class)
-        .hasMessage("User not found on id 0");
+                .hasMessage("User not found on id 0");
     }
 }

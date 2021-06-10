@@ -1,6 +1,7 @@
 package org.esgi.todolist.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +27,8 @@ public class Item {
     @Column(name = "CONTENT", nullable = false)
     private String content;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
+    @ManyToOne()
     private TodoList toDoList;
 
     @CreatedDate

@@ -18,7 +18,7 @@ class ItemTest {
     @Test
     void toJSON() throws JsonProcessingException {
         LocalDateTime now = LocalDateTime.now();
-        String expected = "{\"name\":\"New item\",\"content\":\"content\",\"id\":0,\"toDoList\":null,\"createdAt\":\"" + now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\"}";
+        String expected = "{\"name\":\"New item\",\"content\":\"content\",\"id\":0,\"createdAt\":\"" + now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\"}";
         Item item = new Item("New item", "content", now);
         Assertions.assertThat(item.toJSON()).isEqualTo(expected);
     }

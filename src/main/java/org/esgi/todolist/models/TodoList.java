@@ -21,7 +21,7 @@ public class TodoList {
     @OneToMany(mappedBy = "toDoList", fetch = FetchType.EAGER)
     private List<Item> items;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne()
     @JsonIgnore
     private User user;
 

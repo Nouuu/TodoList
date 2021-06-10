@@ -23,7 +23,6 @@ public class UserService {
     private final int passwordMaxLength;
 
     @Autowired
-
     public UserService(TodoListService todoListService, UserRepository userRepository,
                        TodoListRepository todoListRepository, @Value("${user.password.min-length}") int passwordMinLength,
                        @Value("${user.password.max-length}") int passwordMaxLength) {
