@@ -80,7 +80,7 @@ public class UserService {
     public void deleteUser(int userId) {
         Optional<User> userFromDb = userRepository.findById(userId);
         if (userFromDb.isEmpty()) {
-            throw new UserException("User noot found on id " + userId);
+            throw new UserException("User not found on id " + userId);
         }
         User user = userFromDb.get();
         if (user.getToDoList() != null) {
