@@ -10,8 +10,6 @@ import org.esgi.todolist.commons.date_serializer.CustomDateSerializer;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
 @Entity
