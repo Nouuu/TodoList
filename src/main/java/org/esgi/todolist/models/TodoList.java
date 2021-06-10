@@ -1,8 +1,11 @@
 package org.esgi.todolist.models;
 
+import org.apache.tomcat.util.buf.StringUtils;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "TODOLIST")
@@ -63,5 +66,12 @@ public class TodoList {
 
     public void setItems(List<Item> items) {
         this.items = items;
+    }
+
+    public String toJSON() {
+        List<String> itemsJSON = this.items.stream().map(item -> item.toJSON()).collect(Collectors.toList());
+        return "{'id':"+this.id+
+                ",'items':['"+ StringUtils.join(itemsJSON,',')+
+                "],'user':"+this.user.getId()+"}";
     }
 }
