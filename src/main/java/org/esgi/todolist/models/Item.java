@@ -14,7 +14,6 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-
     @Column(name = "NAME", nullable = false)
     private String name;
 
@@ -98,5 +97,13 @@ public class Item {
 
     public void setToDoList(TodoList toDoList) {
         this.toDoList = toDoList;
+    }
+
+    public String toJSON() {
+        return "{'id':"+this.id+
+                ",'name':'"+this.name+
+                "','content':'"+this.content+
+                "','toDoList':"+this.toDoList.getId()+
+                ",'createdAt':'"+this.createdAt.toString()+"'}";
     }
 }

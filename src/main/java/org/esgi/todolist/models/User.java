@@ -104,5 +104,12 @@ public class User {
                 '}';
     }
 
-
+    public String toJSON() {
+        return "{'id':" + this.id +
+                ",'firstname':'" + this.firstname +
+                "','lastname':'" + lastname +
+                "','email':'" + email +
+                "','password':'" + password +
+                "','toDoList':" + toDoList.toJSON() +"}";
+    }
 }
