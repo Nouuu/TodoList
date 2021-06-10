@@ -31,15 +31,9 @@ class TodoListServiceTest {
 
     @InjectMocks
     private final TodoListService todoListService;
-
-    @MockBean
-    private EmailSenderService emailSenderServiceMock;
-
     private final TodoListRepository todoListRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-
-
     // Data to work with
     Item item1;
     Item item2;
@@ -47,6 +41,16 @@ class TodoListServiceTest {
     Item item4;
     Item item5;
     TodoList todolist;
+    @MockBean
+    private EmailSenderService emailSenderServiceMock;
+
+    @Autowired
+    public TodoListServiceTest(TodoListService todoListService, TodoListRepository todoListRepository, ItemRepository itemRepository, UserRepository userRepository) {
+        this.todoListService = todoListService;
+        this.todoListRepository = todoListRepository;
+        this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
+    }
 
     @BeforeEach
     void setUp() {
@@ -71,14 +75,6 @@ class TodoListServiceTest {
         item5.setToDoList(todolist);
         item5 = itemRepository.save(item5);
         todolist = todoListRepository.findById(todolist.getId()).orElseThrow();
-    }
-
-    @Autowired
-    public TodoListServiceTest(TodoListService todoListService, TodoListRepository todoListRepository, ItemRepository itemRepository, UserRepository userRepository) {
-        this.todoListService = todoListService;
-        this.todoListRepository = todoListRepository;
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
     }
 
     @Test

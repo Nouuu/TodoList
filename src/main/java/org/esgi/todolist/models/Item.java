@@ -61,6 +61,10 @@ public class Item {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getContent() {
         return content;
     }
@@ -73,10 +77,6 @@ public class Item {
         this.createdAt = createdAt;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getId() {
         return id;
     }
@@ -84,7 +84,7 @@ public class Item {
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public void setToDoList(TodoList toDoList) {
         this.toDoList = toDoList;
     }
