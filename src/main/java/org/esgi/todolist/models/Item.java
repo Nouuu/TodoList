@@ -47,13 +47,6 @@ public class Item {
         this.createdAt = createdAt;
     }
 
-    public Item(int id, String name, String content, LocalDateTime createdAt) {
-        this.id = id;
-        this.name = name;
-        this.content = content;
-        this.createdAt = createdAt;
-    }
-
     public Item(String name, String content, LocalDateTime createdAt, TodoList toDoList) {
         this.name = name;
         this.content = content;
@@ -91,15 +84,7 @@ public class Item {
     public void setId(int id) {
         this.id = id;
     }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public TodoList getToDoList() {
-        return toDoList;
-    }
-
+    
     public void setToDoList(TodoList toDoList) {
         this.toDoList = toDoList;
     }
