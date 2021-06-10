@@ -1,6 +1,5 @@
 package org.esgi.todolist.routes;
 
-import org.esgi.todolist.models.Item;
 import org.esgi.todolist.models.User;
 import org.esgi.todolist.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,33 +8,53 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("user")
 public class UserApi {
     private final UserService userService;
 
     @Autowired
-    public UserApi(UserService userService) { this.userService = userService; }
+    public UserApi(UserService userService) {
+        this.userService = userService;
+    }
 
-    @PostMapping("/ToDoList")
-    public ResponseEntity<User> CreateToDoList(@RequestBody User user) {
-        User responseUser = this.userService.createTodolist(user);
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUser(@PathVariable int userId) {
+        User user = userService.getUser(userId);
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        return new ResponseEntity<>(
+                userService.createUser(user),
+                HttpStatus.OK
+        );
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<User> updateUser(@PathVariable int userId, @RequestBody User updatedUser) {
+        User user = userService.updateUser(userId, updatedUser);
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> updateUser(@PathVariable int userId) {
+        userService.deleteUser(userId);
+        return new ResponseEntity<>(
+                "User " + userId + " deleted",
+                HttpStatus.NO_CONTENT
+        );
+    }
+
+    @PostMapping("/{userId}/todolist")
+    public ResponseEntity<User> createToDoList(@PathVariable int userId) {
+        User responseUser = this.userService.createTodolist(userId);
         return new ResponseEntity<>(responseUser, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/items")
-    public ResponseEntity<User> AddItem(@RequestBody User user, @RequestBody Item item) {
-        User responseUser = this.userService.addItem(user, item);
-        return new ResponseEntity<>(responseUser, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/items/{id}")
-    public ResponseEntity<User> UpdateItem(@RequestBody User user, @RequestBody Item item, @PathVariable int id) {
-        User responseUser = this.userService.updateItem(user, item, id);
-        return new ResponseEntity<>(responseUser, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/items/{id}")
-    public ResponseEntity<User> DeleteItem(@RequestBody User user, @PathVariable int id) {
-        User responseUser = this.userService.removeItem(user, id);
-        return new ResponseEntity<>(responseUser, HttpStatus.NO_CONTENT);
     }
 }

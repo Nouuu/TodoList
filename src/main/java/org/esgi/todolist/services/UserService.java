@@ -1,22 +1,37 @@
 package org.esgi.todolist.services;
 
 import org.esgi.todolist.commons.exceptions.UserException;
-import org.esgi.todolist.models.Item;
+import org.esgi.todolist.models.TodoList;
 import org.esgi.todolist.models.User;
+import org.esgi.todolist.repositories.TodoListRepository;
+import org.esgi.todolist.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 @Service
 public class UserService {
 
     private final TodoListService todoListService;
-    private final EmailSenderService emailSenderService;
+    private final UserRepository userRepository;
+    private final TodoListRepository todoListRepository;
+    private final int passwordMinLength;
+    private final int passwordMaxLength;
 
     @Autowired
-    public UserService(TodoListService todoListService, EmailSenderService emailSenderService) {
+
+    public UserService(TodoListService todoListService, UserRepository userRepository,
+                       TodoListRepository todoListRepository, @Value("${user.password.min-length}") int passwordMinLength,
+                       @Value("${user.password.max-length}") int passwordMaxLength) {
         this.todoListService = todoListService;
-        this.emailSenderService = emailSenderService;
+        this.userRepository = userRepository;
+        this.todoListRepository = todoListRepository;
+        this.passwordMinLength = passwordMinLength;
+        this.passwordMaxLength = passwordMaxLength;
     }
 
     public boolean isValid(User user) {
@@ -25,55 +40,68 @@ public class UserService {
                 && StringUtils.hasText(user.getFirstname())
                 && StringUtils.hasText(user.getLastname())
                 && StringUtils.hasLength(user.getPassword())
-                && user.getPassword().length() >= 8
-                && user.getPassword().length() < 40;
+                && user.getPassword().length() >= passwordMinLength
+                && user.getPassword().length() < passwordMaxLength;
     }
 
     private boolean isValidEmail(String email) {
         return email.matches("^(.+)@(.+)$");
     }
 
-    public User createTodolist(User user) {
-        if (!this.isValid(user)) {
+    @Transactional
+    public User getUser(int userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+    @Transactional
+    public User createUser(User newUser) {
+        if (!isValid(newUser)) {
             throw new UserException("User is not valid");
         }
+        newUser.setId(0);
+        return userRepository.save(newUser);
+    }
+
+    @Transactional
+    public User updateUser(int userId, User updatedUser) {
+        Optional<User> userFromDb = userRepository.findById(userId);
+        if (userFromDb.isEmpty()) {
+            return null;
+        }
+
+        if (!isValid(updatedUser)) {
+            throw new UserException("User is not valid");
+        }
+        updatedUser.setId(userFromDb.get().getId());
+        return userRepository.save(updatedUser);
+    }
+
+    @Transactional
+    public void deleteUser(int userId) {
+        Optional<User> userFromDb = userRepository.findById(userId);
+        if (userFromDb.isEmpty()) {
+            throw new UserException("User noot found on id " + userId);
+        }
+        User user = userFromDb.get();
         if (user.getToDoList() != null) {
-            user.createTodolist();
+            todoListService.deleteTodoList(user.getToDoList().getId());
         }
-        return user;
+        userRepository.delete(user);
     }
 
-    public User addItem(User user, Item item) {
-        if (!isValid(user) || user.getToDoList() == null) {
-            throw new UserException("User invalid or don't have list");
+    @Transactional
+    public User createTodolist(int userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new UserException("User not found on id " + userId);
         }
-
-        this.todoListService.addItem(user.getToDoList(), item);
-
-        if (user.getToDoList().getItems().size() == 8) {
-            emailSenderService.sendWarningMessage(user.getEmail());
+        if (user.getToDoList() == null) {
+            TodoList todoList = new TodoList(user);
+            todoList = todoListRepository.save(todoList);
+            user.setToDoList(todoList);
+            return user;
+        } else {
+            throw new UserException("User have already a todolist");
         }
-
-        return user;
-    }
-
-    public User removeItem(User user, int itemIndex) {
-        if (!isValid(user) || user.getToDoList() == null) {
-            throw new UserException("User invalid or don't have list");
-        }
-
-        this.todoListService.removeItem(user.getToDoList(), itemIndex);
-
-        return user;
-    }
-
-    public User updateItem(User user, Item item, int itemIndex) {
-        if (!isValid(user) || user.getToDoList() == null) {
-            throw new UserException("User invalid or don't have list");
-        }
-
-        this.todoListService.updateItem(user.getToDoList(), itemIndex, item);
-
-        return user;
     }
 }

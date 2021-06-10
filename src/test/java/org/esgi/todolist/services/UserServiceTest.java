@@ -1,170 +1,139 @@
 package org.esgi.todolist.services;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.LocalDateTime;
-
-import org.esgi.todolist.commons.exceptions.TodoListException;
+import org.assertj.core.api.Assertions;
 import org.esgi.todolist.commons.exceptions.UserException;
-import org.esgi.todolist.models.Item;
-import org.esgi.todolist.models.ToDoList;
 import org.esgi.todolist.models.User;
+import org.esgi.todolist.repositories.ItemRepository;
+import org.esgi.todolist.repositories.TodoListRepository;
+import org.esgi.todolist.repositories.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class UserServiceTest {
 
-    @InjectMocks
-    private UserService userService;
+    private final int passwordMinLength;
+    private final int passwordMaxLength;
+    User user;
 
-    @MockBean
-    private TodoListService todoListServiceMock;
+    private final UserService userService;
 
-    @MockBean
-    private EmailSenderService emailSenderServiceMock;
+    private final UserRepository userRepository;
+    private final TodoListRepository todoListRepository;
+    private final ItemRepository itemRepository;
+
 
     @Autowired
-    public UserServiceTest(UserService userService) {
+    public UserServiceTest(UserService userService, UserRepository userRepository,
+                           @Value("${user.password.min-length}") int passwordMinLength,
+                           @Value("${user.password.max-length}") int passwordMaxLength,
+                           TodoListRepository todoListRepository, ItemRepository itemRepository) {
+        this.passwordMinLength = passwordMinLength;
+        this.passwordMaxLength = passwordMaxLength;
         this.userService = userService;
+        this.userRepository = userRepository;
+        this.todoListRepository = todoListRepository;
+        this.itemRepository = itemRepository;
+    }
+
+    @BeforeEach
+    void setUp() {
+        itemRepository.deleteAll();
+        todoListRepository.deleteAll();
+        userRepository.deleteAll();
+        user = new User("Firstname", "Lastname", "valid@email.com", "v".repeat(passwordMinLength));
+        user = userRepository.save(user);
     }
 
     @Test
+    @DisplayName("Is valid user on null object")
+    public void testIfNullUserIsValid() {
+        assertFalse(userService.isValid(null));
+    }
+
+    @Test
+    @DisplayName("Is valid user empty firstname")
     public void testIfUserWithoutFirstNameIsValid() {
-        final User user = new User("", "lastname", "email@email.fr", "123145dvdvezf");
+        user.setFirstname("");
         assertFalse(userService.isValid(user));
     }
 
     @Test
+    @DisplayName("Is valid user empty lastname")
     public void testIfUserWithoutLastNameIsValid() {
-        final User user = new User("firstName", "", "email@email.fr", "12314qfqdsf5f");
+        user.setLastname("");
         assertFalse(userService.isValid(user));
     }
 
     @Test
+    @DisplayName("Is valid user empty email")
     public void testIfUserWithoutEmailIsValid() {
-        final User user = new User("firstName", "lastname", "", "qsfqfdqferg'24");
+        user.setEmail("");
         assertFalse(userService.isValid(user));
     }
 
     @Test
+    @DisplayName("Is valid user empty password")
     public void testIfUserWithoutPasswordIsValid() {
-        final User user = new User("firstName", "lastname", "email@email.fr", "");
+        user.setPassword("");
         assertFalse(userService.isValid(user));
     }
 
+    @Test
+    public void testIfUserWithTooLongPasswordIsValid() {
+        user.setPassword("3".repeat(passwordMaxLength * 2));
+        assertFalse(userService.isValid(user));
+    }
+
+    @Test
     public void testUserWithShortPasswordIsValid() {
-        final User user = new User("firstName", "lastname", "email@email.fr", "123azer");
+        user.setPassword("1".repeat(passwordMinLength / 2));
         assertFalse(userService.isValid(user));
     }
 
     @Test
     public void testIfUserWithWrongEmailIsValid() {
-        final User user1 = new User("firstName", "lastname", "emailemail.fr", "asd154684f5dv2c");
-        final User user2 = new User("firstName", "lastname", "emailemailfr", "asd154684f5dv2c");
-        final User user3 = new User("firstName", "lastname", "email@", "asd154684f5dv2c");
-        assertFalse(userService.isValid(user1));
-        assertFalse(userService.isValid(user2));
-        assertFalse(userService.isValid(user3));
+        user.setEmail("emailemail.fr");
+        assertFalse(userService.isValid(user));
+        user.setEmail("emailemailfr");
+        assertFalse(userService.isValid(user));
+        user.setEmail("email@");
+        assertFalse(userService.isValid(user));
     }
 
     @Test
     public void testGoodUserIsValid() {
-        final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
         assertTrue(userService.isValid(user));
     }
 
     @Test
-    public void createToDoListWithBadUser() {
-        User user = new User("", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        assertThrows(UserException.class, () -> {
-            userService.createTodolist(user);
-        });
+    public void createToDoListWithUnknowUser() {
+        Assertions.assertThatThrownBy(() -> userService.createTodolist(0))
+                .isInstanceOf(UserException.class)
+                .hasMessage("User not found on id " + 0);
     }
 
     @Test
     public void createToDoListWithGoodUser() {
-        final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        assertDoesNotThrow(() -> {
-            userService.createTodolist(user);
-        });
+        user = userService.createTodolist(user.getId());
+        assertNotNull(user.getToDoList());
     }
 
     @Test
     public void getToDoListWhenUserAlreadyHasOne() {
-        final User user = new User("firstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        assertDoesNotThrow(() -> {
-            userService.createTodolist(user);
-            userService.createTodolist(user);
-        });
-    }
-
-    @Test
-    public void addItemWhenIsNotValid() {
-        final User user = new User("", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        final Item item = new Item("test", "content de test", LocalDateTime.now());
-        assertThrows(UserException.class, () -> {
-            userService.createTodolist(user);
-            userService.addItem(user, item);
-        });
-    }
-
-    @Test
-    public void addItemWhenToDoListIsNotCreate() {
-        final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        final Item item = new Item("test", "content de test", LocalDateTime.now());
-        assertThrows(UserException.class, () -> {
-            userService.addItem(user, item);
-        });
-    }
-
-    @Test
-    @DisplayName("Test add item error user handling")
-    public void testUserAddItemError() {
-        final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        final Item item = new Item("test", "content de test", LocalDateTime.now());
-        user.createTodolist();
-        Mockito.doThrow(new TodoListException("You need to wait 30 minutes between to tasks"))
-                .when(todoListServiceMock).addItem(Mockito.any(), Mockito.any());
-
-        assertThrows(TodoListException.class, () -> {
-            userService.addItem(user, item);
-        });
-    }
-
-    @Test
-    @DisplayName("Test add item do nothing don't send email")
-    public void testUserAddItemMock() {
-        final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        final Item item = new Item("test", "content de test", LocalDateTime.now());
-        user.createTodolist();
-
-        Mockito.doNothing().when(emailSenderServiceMock).sendWarningMessage(Mockito.any());
-
-        assertThrows(TodoListException.class, () -> {
-            userService.addItem(user, item);
-        });
-    }
-
-    @Test
-    @DisplayName("Test item valid")
-    public void testUserIsValidItemMock() {
-        final User user = new User("FirstName", "lastName", "email@email.fr", "1231fqzefqzefgzrg5f");
-        final Item item = new Item("test", "content de test", LocalDateTime.now());
-        user.createTodolist();
-
-        Mockito.doReturn(true).when(todoListServiceMock).isItemValid(Mockito.any(Item.class), Mockito.any(ToDoList.class),Mockito.any());
-
-        assertThrows(TodoListException.class, () -> {
-            userService.addItem(user, item);
-        });
+        userService.createTodolist(user.getId());
+        Assertions.assertThatThrownBy(() -> userService.createTodolist(user.getId()))
+                .isInstanceOf(UserException.class)
+                .hasMessage("User have already a todolist");
     }
 }

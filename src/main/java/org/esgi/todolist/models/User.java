@@ -1,19 +1,48 @@
 package org.esgi.todolist.models;
 
 
-public class User {
-    private String firstname;
-    private String lastname;
-    private String email;
-    private String password;
-    private ToDoList toDoList;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public User(String firstname, String lastname, String email, String password) {
+import javax.persistence.*;
+
+@Entity
+@Table(name = "USER")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "FIRSTNAME", nullable = false)
+    private String firstname;
+
+    @Column(name = "LASTNAME", nullable = false)
+    private String lastname;
+
+    @Column(name = "EMAIL", nullable = false)
+    private String email;
+
+    @Column(name = "PASSWORD", nullable = false)
+    private String password;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    private TodoList toDoList;
+
+
+    @JsonCreator
+    public User(@JsonProperty("firstname") String firstname,
+                @JsonProperty("lastname") String lastname,
+                @JsonProperty("email") String email,
+                @JsonProperty("password") String password) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
-        this.toDoList = null;
+    }
+
+    public User() {
+
     }
 
     public void setFirstname(String firstname) {
@@ -32,15 +61,11 @@ public class User {
         this.password = password;
     }
 
-    public void setToDoList(ToDoList toDoList) {
+    public void setToDoList(TodoList toDoList) {
         this.toDoList = toDoList;
     }
 
-    public void createTodolist() {
-        this.toDoList = new ToDoList();
-    }
-
-    public ToDoList getToDoList() {
+    public TodoList getToDoList() {
         return toDoList;
     }
 
@@ -60,6 +85,15 @@ public class User {
         return password;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
     @Override
     public String toString() {
         return "User{" +
@@ -69,4 +103,6 @@ public class User {
                 ", password='" + password + '\'' +
                 '}';
     }
+
+
 }
