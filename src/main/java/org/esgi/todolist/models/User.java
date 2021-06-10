@@ -3,6 +3,8 @@ package org.esgi.todolist.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.persistence.*;
 
@@ -93,23 +95,15 @@ public class User {
         this.id = id;
     }
 
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "firstname='" + firstname + '\'' +
-                ", lastname='" + lastname + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
-
-    public String toJSON() {
-        return "{'id':" + this.id +
-                ",'firstname':'" + this.firstname +
-                "','lastname':'" + lastname +
-                "','email':'" + email +
-                "','password':'" + password +
-                "','toDoList':" + toDoList.toJSON() +"}";
+    public String toJSON() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(this);
+/*
+        return "{\"id\":" + this.id +
+                ",\"firstname\":\"" + this.firstname +
+                "\",\"lastname\":\"" + lastname +
+                "\",\"email\":\"" + email +
+                "\",\"password\":\"" + password +
+                "\",\"toDoList\":" + toDoList.toJSON() + "}";*/
     }
 }
