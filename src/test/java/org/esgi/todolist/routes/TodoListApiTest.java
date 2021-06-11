@@ -106,8 +106,69 @@ class TodoListApiTest {
     }
 
     @Test
-    void updateItem() {
+    void addItemInexistingTodoList() throws Exception {
+        Item item = new Item("new item", "content", LocalDateTime.now());
+        todoList.add(item);
+
+        mvcHelper.invokePostMethod(String.valueOf(0), item.toJSON())
+                .andExpect(status().isNotFound());
     }
+
+    @Test
+    void updateItem() throws Exception {
+        Item item = new Item("item name", "content", LocalDateTime.now());
+        item.setToDoList(todoList);
+        itemRepository.save(item);
+        todoList.add(item);
+        item.setName("updated name");
+        String result = mvcHelper.invokePutMethod(todoList.getId() + "/items/" + item.getId(), item.toJSON())
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        TodoList returnedTodoList = mapper.readValue(result, TodoList.class);
+        Assertions.assertThat(todoList.toJSON()).isEqualTo(returnedTodoList.toJSON());
+    }
+
+    @Test
+    void updateInvalidItem() throws Exception {
+        Item item = new Item("item name", "content", LocalDateTime.now());
+        item.setToDoList(todoList);
+        itemRepository.save(item);
+        todoList.add(item);
+        item.setName("");
+        String result = mvcHelper.invokePutMethod(todoList.getId() + "/items/" + item.getId(), item.toJSON())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString();
+        ResponseError returnedError = mapper.readValue(result, ResponseError.class);
+        Assertions.assertThat(returnedError.getMessage()).isEqualTo("Item not valid");
+    }
+
+    @Test
+    void updateItemInexistingTodoList() throws Exception {
+        Item item = new Item("item name", "content", LocalDateTime.now());
+        item.setToDoList(todoList);
+        itemRepository.save(item);
+        todoList.add(item);
+        item.setName("");
+
+        mvcHelper.invokePutMethod("0/items/" + item.getId(), item.toJSON())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateItemInexistingItem() throws Exception {
+        Item item = new Item("item name", "content", LocalDateTime.now());
+        item.setToDoList(todoList);
+        itemRepository.save(item);
+        todoList.add(item);
+        item.setName("");
+
+        String result = mvcHelper.invokePutMethod(todoList.getId() + "/items/0", item.toJSON())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString();
+        ResponseError returnedError = mapper.readValue(result, ResponseError.class);
+        Assertions.assertThat(returnedError.getMessage()).isEqualTo("Item not found in todoList");
+    }
+
 
     @Test
     void deleteItem() {
