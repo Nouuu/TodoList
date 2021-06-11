@@ -112,7 +112,7 @@ class TodoListServiceTest {
 
         Assertions.assertThatThrownBy(() -> todoListService.addItem(todolist.getId(), newItem))
                 .isInstanceOf(TodoListException.class)
-                .hasMessage("You need to wait 30 minutes between to tasks");
+                .hasMessage("You need to wait 30 minutes between two tasks");
     }
 
     @Test
@@ -294,7 +294,7 @@ class TodoListServiceTest {
         User user = userRepository.save(new User("firstname", "lastname", "example@email.com", "validpassword"));
         todolist.setUser(user);
         todoListRepository.save(todolist);
-        itemRepository.save(new Item("new Item 5", "new item content", LocalDateTime.now().minusMinutes(120), todolist));
+//        itemRepository.save(new Item("new Item 5", "new item content", LocalDateTime.now().minusMinutes(120), todolist));
         itemRepository.save(new Item("new Item 6", "new item content", LocalDateTime.now().minusMinutes(120), todolist));
         itemRepository.save(new Item("new Item 7", "new item content", LocalDateTime.now().minusMinutes(30), todolist));
 

@@ -52,14 +52,15 @@ public class TodoListService {
         if (todoList.getItems().size() > 0) {
             Item lastItem = todoList.getItems().get(todoList.getItems().size() - 1);
             if (now.minusMinutes(30).isBefore(lastItem.getCreatedAt())) {
-                throw new TodoListException("You need to wait 30 minutes between to tasks");
+                throw new TodoListException("You need to wait 30 minutes between two tasks");
             }
         }
         item.setCreatedAt(now);
         item.setToDoList(todoList);
         itemRepository.save(item);
+        todoList.add(item);
 //        todoList = todoListRepository.findById(todoList.getId()).orElse(null);
-
+//
 //        assert todoList != null;
         if (todoList.getItems().size() == 8) {
             emailSenderService.sendWarningMessage(todoList.getUser().getEmail());
@@ -88,14 +89,15 @@ public class TodoListService {
         if (todoList == null) {
             return null;
         }
-
-        if (todoList.getItems().stream().noneMatch(i -> i.getId() == itemId)) {
+        Item itemFromDB = todoList.getItems().stream().filter(i -> i.getId() == itemId).findFirst().orElse(null);
+        if (itemFromDB == null) {
             throw new TodoListException("Item not found in todoList");
         }
         if (!isItemValid(item, todoList, itemId)) {
             throw new TodoListException("Item not valid");
         }
         item.setToDoList(todoList);
+        item.setCreatedAt(itemFromDB.getCreatedAt());
         item.setId(itemId);
         itemRepository.save(item);
 

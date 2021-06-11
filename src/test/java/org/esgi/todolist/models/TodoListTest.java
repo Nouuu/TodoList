@@ -23,8 +23,8 @@ class TodoListTest {
         todoList.add(new Item("item 1", "content", now));
         todoList.add(new Item("item 2", "content", now));
         String expected = "{\"id\":0,\"items\":[{\"name\":\"item 1\",\"content\":\"content\",\"id\":0," +
-                "\"createdAt\":\"" + now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\"},{\"name\":\"item 2\",\"content\":\"content\",\"id\":0," +
-                "\"createdAt\":\"" + now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\"}]}";
+                "\"createdAt\":\"" + now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + "\"},{\"name\":\"item 2\",\"content\":\"content\",\"id\":0," +
+                "\"createdAt\":\"" + now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + "\"}]}";
         Assertions.assertThat(todoList.toJSON()).isEqualTo(expected);
 
     }
