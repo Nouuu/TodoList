@@ -30,7 +30,7 @@ public class UserApi {
     public ResponseEntity<User> createUser(@RequestBody User user) {
         return new ResponseEntity<>(
                 userService.createUser(user),
-                HttpStatus.OK
+                HttpStatus.CREATED
         );
     }
 
