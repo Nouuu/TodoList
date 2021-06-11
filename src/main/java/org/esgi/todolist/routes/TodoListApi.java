@@ -39,12 +39,18 @@ public class TodoListApi {
     @PutMapping("{todoListId}/items/{itemId}")
     public ResponseEntity<TodoList> UpdateItem(@RequestBody Item item, @PathVariable int itemId, @PathVariable int todoListId) {
         TodoList response = this.todoListService.updateItem(todoListId, itemId, item);
+        if (response == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("{todoListId}/items/{itemId}")
     public ResponseEntity<TodoList> DeleteItem(@PathVariable int itemId, @PathVariable int todoListId) {
         TodoList response = this.todoListService.removeItem(todoListId, itemId);
+        if (response == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 
