@@ -19,7 +19,7 @@ public class TodoListApi {
     }
 
     @GetMapping("/{todoListId}")
-    public ResponseEntity<TodoList> AddItem(@PathVariable int todoListId) {
+    public ResponseEntity<TodoList> GetTodoList(@PathVariable int todoListId) {
         TodoList response = this.todoListService.getTodoList(todoListId);
         if (response == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -46,5 +46,14 @@ public class TodoListApi {
     public ResponseEntity<TodoList> DeleteItem(@PathVariable int itemId, @PathVariable int todoListId) {
         TodoList response = this.todoListService.removeItem(todoListId, itemId);
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("{todoListId}")
+    public ResponseEntity<String> DeleteTodoList(@PathVariable int todoListId) {
+        this.todoListService.deleteTodoList(todoListId);
+        return new ResponseEntity<>(
+                "TodoList " + todoListId + " deleted",
+                HttpStatus.NO_CONTENT
+        );
     }
 }

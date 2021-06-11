@@ -58,8 +58,9 @@ public class TodoListService {
         item.setCreatedAt(now);
         item.setToDoList(todoList);
         itemRepository.save(item);
+        todoList.add(item);
 //        todoList = todoListRepository.findById(todoList.getId()).orElse(null);
-
+//
 //        assert todoList != null;
         if (todoList.getItems().size() == 8) {
             emailSenderService.sendWarningMessage(todoList.getUser().getEmail());
