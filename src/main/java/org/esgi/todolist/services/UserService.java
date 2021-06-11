@@ -1,5 +1,6 @@
 package org.esgi.todolist.services;
 
+import org.esgi.todolist.commons.exceptions.TodoListException;
 import org.esgi.todolist.commons.exceptions.UserException;
 import org.esgi.todolist.models.TodoList;
 import org.esgi.todolist.models.User;
@@ -89,18 +90,37 @@ public class UserService {
     }
 
     @Transactional
-    public User createTodolist(int userId) {
+    public User createTodolist(int userId, TodoList todoList) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new UserException("User not found on id " + userId);
         }
         if (user.getToDoList() == null) {
-            TodoList todoList = new TodoList(user);
+            if (todoList != null) {
+                if (todoList.getName() != null) {
+                    todoList.setName(StringUtils.trimWhitespace(todoList.getName()));
+                }
+                if (todoList.getDescription() != null) {
+                    todoList.setDescription(StringUtils.trimWhitespace(todoList.getDescription()));
+                }
+                if (!isValidTodoList(todoList)) {
+                    throw new TodoListException("Invalid TodoList");
+                }
+            } else {
+                todoList = new TodoList();
+            }
+            todoList.setUser(user);
             todoList = todoListRepository.save(todoList);
             user.setToDoList(todoList);
             return user;
         } else {
             throw new UserException("User have already a todolist");
         }
+    }
+
+    @Transactional
+    public boolean isValidTodoList(TodoList todoList) {
+        boolean isValid = !StringUtils.hasLength(todoList.getName()) || todoList.getName().length() <= 255;
+        return !isValid || !StringUtils.hasLength(todoList.getDescription()) || todoList.getDescription().length() <= 255;
     }
 }

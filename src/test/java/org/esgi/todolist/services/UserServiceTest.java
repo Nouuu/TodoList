@@ -3,6 +3,7 @@ package org.esgi.todolist.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.assertj.core.api.Assertions;
 import org.esgi.todolist.commons.exceptions.UserException;
+import org.esgi.todolist.models.TodoList;
 import org.esgi.todolist.models.User;
 import org.esgi.todolist.repositories.ItemRepository;
 import org.esgi.todolist.repositories.TodoListRepository;
@@ -33,6 +34,7 @@ public class UserServiceTest {
     private final TodoListRepository todoListRepository;
     private final ItemRepository itemRepository;
     User user;
+    TodoList todoList;
     @MockBean
     private TodoListService todoListService;
 
@@ -60,6 +62,7 @@ public class UserServiceTest {
         userRepository.deleteAll();
         user = new User("Firstname", "Lastname", "valid@email.com", "v".repeat(passwordMinLength));
         user = userRepository.save(user);
+        todoList = new TodoList("name", "content");
     }
 
     @Test
@@ -125,21 +128,21 @@ public class UserServiceTest {
 
     @Test
     public void createToDoListWithUnknowUser() {
-        Assertions.assertThatThrownBy(() -> userService.createTodolist(0))
+        Assertions.assertThatThrownBy(() -> userService.createTodolist(0, todoList))
                 .isInstanceOf(UserException.class)
                 .hasMessage("User not found on id " + 0);
     }
 
     @Test
     public void createToDoListWithGoodUser() {
-        user = userService.createTodolist(user.getId());
+        user = userService.createTodolist(user.getId(), todoList);
         assertNotNull(user.getToDoList());
     }
 
     @Test
     public void getToDoListWhenUserAlreadyHasOne() {
-        userService.createTodolist(user.getId());
-        Assertions.assertThatThrownBy(() -> userService.createTodolist(user.getId()))
+        userService.createTodolist(user.getId(), todoList);
+        Assertions.assertThatThrownBy(() -> userService.createTodolist(user.getId(), todoList))
                 .isInstanceOf(UserException.class)
                 .hasMessage("User have already a todolist");
     }
@@ -210,7 +213,7 @@ public class UserServiceTest {
             return null;
         }).when(todoListService).deleteTodoList(any(int.class));
 
-        user = userService.createTodolist(user.getId());
+        user = userService.createTodolist(user.getId(), todoList);
         userService.deleteUser(user.getId());
 
         Assertions.assertThat(userRepository.findById(user.getId())).isEmpty();
