@@ -20,13 +20,4 @@ public class ResponseError {
     public String getMessage() {
         return message;
     }
-
-    @Override
-    public String toString() {
-        return "{" +
-                "\"status\":" + status +
-                ",\"exception\":\"" + exception + '\"' +
-                ",\"message\":\"" + message + '\"' +
-                '}';
-    }
 }
