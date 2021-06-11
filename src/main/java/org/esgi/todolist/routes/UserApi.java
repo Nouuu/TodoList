@@ -26,7 +26,7 @@ public class UserApi {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/")
+    @PostMapping({"/", ""})
     public ResponseEntity<User> createUser(@RequestBody User user) {
         return new ResponseEntity<>(
                 userService.createUser(user),
