@@ -24,7 +24,7 @@ public class Item {
     @Column(name = "NAME", nullable = false)
     private String name;
 
-    @Column(name = "CONTENT", nullable = false)
+    @Column(name = "CONTENT", nullable = false,length = 4000)
     private String content;
 
     @JsonIgnore
