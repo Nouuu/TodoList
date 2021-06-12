@@ -1,4 +1,4 @@
-import { sleep } from "k6";
+import { group, sleep } from "k6";
 import {
   testAddUser,
   testGetUser,
@@ -7,17 +7,22 @@ import {
   testGetTodoList,
 } from "./test.js";
 
+const SLEEP_DURATION = 0.1;
+
 export let options = {
-  vus: 100,
-  duration: "10s",
+  vus: 1000,
+  duration: "20s",
 };
 
 export default function () {
-  const userId = testAddUser();
-  testGetUser(userId);
-  const todoListId = testAddTodoList(userId);
-  testAddItem(todoListId);
-  testGetTodoList(todoListId);
-
-  sleep(1);
+  group("User Login for add Item", () => {
+    const userId = testAddUser();
+    testGetUser(userId);
+    sleep(SLEEP_DURATION);
+    const todoListId = testAddTodoList(userId);
+    sleep(SLEEP_DURATION);
+    testAddItem(todoListId);
+    testGetTodoList(todoListId);
+    sleep(SLEEP_DURATION);
+  });
 }

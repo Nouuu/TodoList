@@ -36,6 +36,7 @@ export function test(requestName, status, req) {
 
   if (req.status < 200 || req.status > 299) {
     console.log(req.status);
+    console.log(req.url);
     if (req.status !== 404) {
       console.log(req.body);
     }
