@@ -112,7 +112,7 @@ class TodoListServiceTest {
 
         Assertions.assertThatThrownBy(() -> todoListService.addItem(todolist.getId(), newItem))
                 .isInstanceOf(TodoListException.class)
-                .hasMessage("You need to wait 30 minutes between to tasks");
+                .hasMessage("You need to wait 30 minutes between two tasks");
     }
 
     @Test

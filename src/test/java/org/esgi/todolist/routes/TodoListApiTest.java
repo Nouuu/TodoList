@@ -171,6 +171,52 @@ class TodoListApiTest {
 
 
     @Test
-    void deleteItem() {
+    void deleteTodoList() throws Exception {
+        mvcHelper.invokeDeleteMethod(String.valueOf(todoList.getId()), "")
+                .andExpect(status().isNoContent());
+        Assertions.assertThat(todoListRepository.findById(todoList.getId())).isEmpty();
     }
+
+    @Test
+    void deleteInexistingTodoList() throws Exception {
+        String result = mvcHelper.invokeDeleteMethod(String.valueOf(0), "")
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString();
+        ResponseError returnedError = mapper.readValue(result, ResponseError.class);
+
+        Assertions.assertThat(returnedError.getMessage()).isEqualTo("Trying to delete todo list but not found on id 0");
+    }
+
+    @Test
+    void deleteItem() throws Exception {
+        Item item = new Item("name", "content");
+        item.setToDoList(todoList);
+        itemRepository.save(item);
+
+        mvcHelper.invokeDeleteMethod(todoList.getId() + "/items/" + item.getId(), "")
+                .andExpect(status().isNoContent());
+        Assertions.assertThat(itemRepository.findById(item.getId())).isEmpty();
+    }
+
+    @Test
+    void deleteItemInexistingTodoList() throws Exception {
+        Item item = new Item("name", "content");
+        item.setToDoList(todoList);
+        itemRepository.save(item);
+
+        mvcHelper.invokeDeleteMethod("0/items/" + item.getId(), "")
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteInexistingItemTodoList() throws Exception {
+        String result = mvcHelper.invokeDeleteMethod(todoList.getId() + "/items/0", "")
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString();
+        ResponseError returnedError = mapper.readValue(result, ResponseError.class);
+
+        Assertions.assertThat(returnedError.getMessage()).isEqualTo("Item not found in todoList");
+    }
+
+
 }

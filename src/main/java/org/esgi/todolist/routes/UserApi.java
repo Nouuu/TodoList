@@ -17,7 +17,7 @@ public class UserApi {
         this.userService = userService;
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("{userId}")
     public ResponseEntity<User> getUser(@PathVariable int userId) {
         User user = userService.getUser(userId);
         if (user != null) {
@@ -26,7 +26,7 @@ public class UserApi {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         return new ResponseEntity<>(
                 userService.createUser(user),
@@ -34,7 +34,7 @@ public class UserApi {
         );
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping("{userId}")
     public ResponseEntity<User> updateUser(@PathVariable int userId, @RequestBody User updatedUser) {
         User user = userService.updateUser(userId, updatedUser);
         if (user != null) {
@@ -43,7 +43,7 @@ public class UserApi {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("{userId}")
     public ResponseEntity<String> updateUser(@PathVariable int userId) {
         userService.deleteUser(userId);
         return new ResponseEntity<>(
@@ -52,7 +52,7 @@ public class UserApi {
         );
     }
 
-    @PostMapping("/{userId}/todolist")
+    @PostMapping("{userId}/todolist")
     public ResponseEntity<User> createToDoList(@PathVariable int userId) {
         User responseUser = this.userService.createTodolist(userId);
         return new ResponseEntity<>(responseUser, HttpStatus.CREATED);
