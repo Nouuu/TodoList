@@ -1,43 +1,42 @@
-import http from "k6/http";
+import { test, get, post, generatePrefixForEmail } from "./utils.js";
 
-import { sleep, check } from "k6";
+export function testAddUser() {
+  const emailPrefix = generatePrefixForEmail();
+  const addUserRes = post("user/", {
+    firstname: "Le Dieu",
+    lastname: "Citron",
+    email: emailPrefix + "@cretin.com",
+    password: "celuiquiliscaest",
+  });
+  test("addUser", 201, addUserRes);
 
-function generatePrefixForEmail() {
-  const chars = "abcdefghijklmnopqrstuvwxyz";
-  const getSize = () => Math.random() * 10 + 6;
-  function shuffle(s) {
-    return s
-      .split("")
-      .sort((a, b) => 0.5 - Math.random())
-      .join("");
-  }
-  const shuffled = shuffle(chars);
-  shuffled.slice(0, getSize());
-  return shuffle(chars);
+  return JSON.parse(addUserRes.body).id;
 }
 
-export let options = {
-  vus: 50,
-  duration: "10s",
-};
+export function testGetUser(userId) {
+  const getUserRes = get(`/user/${userId}`);
+  test("getUser", 200, getUserRes);
+}
 
-export default function () {
-  const emailPrefix = generatePrefixForEmail();
-  const res = http.post(
-    "http://localhost:8080/user/",
-    JSON.stringify({
-      firstname: "Le Dieu",
-      lastname: "Citron",
-      email: emailPrefix + "@cretin.com",
-      password: "celuiquiliscaest",
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  check(res, { "status: 201": (r) => r.status === 201 });
+export function testAddTodoList(userId) {
+  const addTodolistRes = post(`/user/${userId}/todolist`, {
+    name: "my todolist",
+    description: "A average todolist, nothing more to say.",
+  });
+  test("addTodolist", 201, addTodolistRes);
 
-  sleep(1);
+  return JSON.parse(addTodolistRes.body).id;
+}
+
+export function testAddItem(todoListId) {
+  const addItemInTodolistRes = post(`todolist/${todoListId}`, {
+    name: "item's 2 name",
+    content: "item's content",
+  });
+  test("addItem", 201, addItemInTodolistRes);
+}
+
+export function testGetTodoList(todoListId) {
+  const getToDoListRes = get(`todolist/${todoListId}`);
+  test("getTodolist", 200, getToDoListRes);
 }
