@@ -12,7 +12,7 @@
 
     <groupId>org.esgi</groupId>
     <artifactId>todo-list</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0-RC1</version>
     <name>todo-list</name>
     <description>Todo list in TDD</description>
 
