@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Pull project
@@ -34,3 +34,8 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: target/site/jacoco/jacoco.xml
+
+      - name: Run local k6 test
+        uses: k6io/action@v0.1
+        with:
+          filename: ./perf-test/main.js
