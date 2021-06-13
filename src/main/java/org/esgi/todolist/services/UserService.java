@@ -121,6 +121,6 @@ public class UserService {
     @Transactional
     public boolean isValidTodoList(TodoList todoList) {
         boolean isValid = !StringUtils.hasLength(todoList.getName()) || todoList.getName().length() <= 255;
-        return !isValid || !StringUtils.hasLength(todoList.getDescription()) || todoList.getDescription().length() <= 255;
+        return isValid && (!StringUtils.hasLength(todoList.getDescription()) || todoList.getDescription().length() <= 255);
     }
 }
