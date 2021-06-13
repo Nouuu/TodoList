@@ -73,6 +73,7 @@ public class UserService {
             throw new UserException("User is not valid");
         }
         updatedUser.setId(userFromDb.get().getId());
+        updatedUser.setToDoList(userFromDb.get().getToDoList());
         return userRepository.save(updatedUser);
     }
 
