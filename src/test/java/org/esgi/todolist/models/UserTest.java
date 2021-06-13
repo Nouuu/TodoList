@@ -16,7 +16,7 @@ class UserTest {
     @Test
     void toJSONWithEmptyTodoList() throws JsonProcessingException {
         User user = new User("Firstname", "Lastname", "email@eee.fr", "password");
-        String expected = "{\"firstname\":\"Firstname\",\"lastname\":\"Lastname\",\"email\":\"email@eee.fr\",\"password\":\"password\",\"id\":0,\"toDoList\":{\"id\":0,\"items\":[]}}";
+        String expected = "{\"firstname\":\"Firstname\",\"lastname\":\"Lastname\",\"email\":\"email@eee.fr\",\"password\":\"password\",\"id\":0,\"toDoList\":{\"name\":null,\"description\":null,\"id\":0,\"items\":[]}}";
         user.setToDoList(new TodoList());
         Assertions.assertThat(user.toJSON()).isEqualTo(expected);
 

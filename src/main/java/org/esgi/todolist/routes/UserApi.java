@@ -1,5 +1,6 @@
 package org.esgi.todolist.routes;
 
+import org.esgi.todolist.models.TodoList;
 import org.esgi.todolist.models.User;
 import org.esgi.todolist.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +54,8 @@ public class UserApi {
     }
 
     @PostMapping("{userId}/todolist")
-    public ResponseEntity<User> createToDoList(@PathVariable int userId) {
-        User responseUser = this.userService.createTodolist(userId);
+    public ResponseEntity<User> createToDoList(@PathVariable int userId, @RequestBody(required = false) TodoList todoList) {
+        User responseUser = this.userService.createTodolist(userId, todoList);
         return new ResponseEntity<>(responseUser, HttpStatus.CREATED);
     }
 }
