@@ -35,16 +35,12 @@ public class TodoList {
         this.items = new ArrayList<>();
     }
 
-    public TodoList(User user) {
-        this.items = new ArrayList<>();
-        this.user = user;
-    }
-
     @JsonCreator
     public TodoList(@JsonProperty("name") String name,
                     @JsonProperty("description") String description) {
         this.name = name;
         this.description = description;
+        this.items = new ArrayList<>();
     }
 
     public TodoList add(Item item) {
