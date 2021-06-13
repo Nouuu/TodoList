@@ -2,6 +2,7 @@ package org.esgi.todolist.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.assertj.core.api.Assertions;
+import org.esgi.todolist.commons.exceptions.TodoListException;
 import org.esgi.todolist.commons.exceptions.UserException;
 import org.esgi.todolist.models.TodoList;
 import org.esgi.todolist.models.User;
@@ -62,7 +63,7 @@ public class UserServiceTest {
         userRepository.deleteAll();
         user = new User("Firstname", "Lastname", "valid@email.com", "v".repeat(passwordMinLength));
         user = userRepository.save(user);
-        todoList = new TodoList("name", "content");
+        todoList = new TodoList();
     }
 
     @Test
@@ -137,6 +138,52 @@ public class UserServiceTest {
     public void createToDoListWithGoodUser() {
         user = userService.createTodolist(user.getId(), todoList);
         assertNotNull(user.getToDoList());
+    }
+
+    @Test
+    public void createToDoListWithNameAndDescription() {
+        todoList.setName("list name");
+        todoList.setDescription("list description");
+        user = userService.createTodolist(user.getId(), todoList);
+        assertNotNull(user.getToDoList());
+        Assertions.assertThat(user.getToDoList().getName()).isEqualTo("list name");
+        Assertions.assertThat(user.getToDoList().getDescription()).isEqualTo("list description");
+    }
+
+    @Test
+    public void createToDoListWithNameOnly() {
+        todoList.setName("list name");
+        user = userService.createTodolist(user.getId(), todoList);
+        assertNotNull(user.getToDoList());
+        Assertions.assertThat(user.getToDoList().getName()).isEqualTo("list name");
+        Assertions.assertThat(user.getToDoList().getDescription()).isNull();
+    }
+
+    @Test
+    public void createToDoListWithDesciptionOnly() {
+        todoList.setDescription("list description");
+        user = userService.createTodolist(user.getId(), todoList);
+        assertNotNull(user.getToDoList());
+        Assertions.assertThat(user.getToDoList().getDescription()).isEqualTo("list description");
+        Assertions.assertThat(user.getToDoList().getName()).isNull();
+    }
+
+    @Test
+    public void createToDoListWithNameAndInvalidDescription() {
+        todoList.setName("list name");
+        todoList.setDescription("list".repeat(65));
+        Assertions.assertThatThrownBy(() -> userService.createTodolist(user.getId(), todoList))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Invalid TodoList");
+    }
+
+    @Test
+    public void createToDoListWithDescriptionAndInvalidName() {
+        todoList.setName("list".repeat(64));
+        todoList.setDescription("list description");
+        Assertions.assertThatThrownBy(() -> userService.createTodolist(user.getId(), todoList))
+                .isInstanceOf(TodoListException.class)
+                .hasMessage("Invalid TodoList");
     }
 
     @Test
