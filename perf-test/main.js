@@ -21,6 +21,7 @@ export default function () {
     sleep(SLEEP_DURATION);
     const todoListId = testAddTodoList(userId);
     sleep(SLEEP_DURATION);
+    sleep(SLEEP_DURATION);
     testAddItem(todoListId);
     testGetTodoList(todoListId);
     sleep(SLEEP_DURATION);
